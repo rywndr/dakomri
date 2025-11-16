@@ -87,6 +87,22 @@ export function Navbar() {
                         </NavigationMenuItem>
                         <NavigationMenuItem>
                             <NavigationMenuLink
+                                href="/form"
+                                className={navigationMenuTriggerStyle()}
+                            >
+                                Form
+                            </NavigationMenuLink>
+                        </NavigationMenuItem>
+                        <NavigationMenuItem>
+                            <NavigationMenuLink
+                                href="/kegiatan"
+                                className={navigationMenuTriggerStyle()}
+                            >
+                                Kegiatan
+                            </NavigationMenuLink>
+                        </NavigationMenuItem>
+                        <NavigationMenuItem>
+                            <NavigationMenuLink
                                 href="/admin"
                                 className={navigationMenuTriggerStyle()}
                             >
