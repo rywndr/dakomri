@@ -1,14 +1,18 @@
-"use client";
+import { redirect } from "next/navigation";
+import { headers } from "next/headers";
+import { auth } from "@/lib/auth";
 
-export default function AdminPage() {
-    return (
-        <div className="container mx-auto py-8 px-4">
-            <div className="mb-8">
-                <h1 className="text-3xl font-bold mb-2">Admin Dashboard</h1>
-                <p className="text-muted-foreground">
-                    Kelola data dan verifikasi formulir pendataan komunitas
-                </p>
-            </div>
-        </div>
-    );
+export default async function AdminPage() {
+    // Get session from server
+    const session = await auth.api.getSession({
+        headers: await headers(),
+    });
+
+    // Redirect to home if not logged in or not admin
+    if (!session?.user || session.user.role !== "admin") {
+        redirect("/");
+    }
+
+    // Redirect to submissions page as default admin view
+    redirect("/admin/submissions");
 }
