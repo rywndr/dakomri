@@ -9,6 +9,7 @@ import {
     UserCheck,
     Trash2,
     Edit,
+    Key,
 } from "lucide-react";
 import { authClient } from "@/lib/auth-client";
 import { Button } from "@/components/ui/button";
@@ -61,10 +62,13 @@ export function UserActions({
     const router = useRouter();
     const [isRoleDialogOpen, setIsRoleDialogOpen] = useState(false);
     const [isUpdateDialogOpen, setIsUpdateDialogOpen] = useState(false);
+    const [isPasswordDialogOpen, setIsPasswordDialogOpen] = useState(false);
     const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
     const [selectedRole, setSelectedRole] = useState(currentRole || "user");
     const [updateName, setUpdateName] = useState(userName);
     const [updateEmail, setUpdateEmail] = useState(userEmail);
+    const [newPassword, setNewPassword] = useState("");
+    const [confirmPassword, setConfirmPassword] = useState("");
     const [isLoading, setIsLoading] = useState(false);
 
     const handleSetRole = async () => {
@@ -176,6 +180,52 @@ export function UserActions({
         }
     };
 
+    const handleSetPassword = async () => {
+        if (!newPassword.trim()) {
+            toast.error("Validasi gagal", {
+                description: "Password tidak boleh kosong",
+            });
+            return;
+        }
+
+        if (newPassword.length < 8) {
+            toast.error("Validasi gagal", {
+                description: "Password minimal 8 karakter",
+            });
+            return;
+        }
+
+        if (newPassword !== confirmPassword) {
+            toast.error("Validasi gagal", {
+                description: "Password dan konfirmasi tidak cocok",
+            });
+            return;
+        }
+
+        setIsLoading(true);
+        try {
+            await authClient.admin.setUserPassword({
+                userId,
+                newPassword,
+            });
+
+            toast.success("Password berhasil diubah", {
+                description: `Password untuk ${userName} telah diperbarui`,
+            });
+
+            setIsPasswordDialogOpen(false);
+            setNewPassword("");
+            setConfirmPassword("");
+            router.refresh();
+        } catch {
+            toast.error("Terjadi kesalahan", {
+                description: "Gagal mengubah password pengguna",
+            });
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
     const handleDeleteUser = async () => {
         setIsLoading(true);
         try {
@@ -215,6 +265,12 @@ export function UserActions({
                     >
                         <Edit className="mr-2 h-4 w-4" />
                         Edit Pengguna
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                        onClick={() => setIsPasswordDialogOpen(true)}
+                    >
+                        <Key className="mr-2 h-4 w-4" />
+                        Ubah Password
                     </DropdownMenuItem>
                     <DropdownMenuItem onClick={() => setIsRoleDialogOpen(true)}>
                         <Shield className="mr-2 h-4 w-4" />
@@ -332,6 +388,67 @@ export function UserActions({
                             Batal
                         </Button>
                         <Button onClick={handleSetRole} disabled={isLoading}>
+                            {isLoading ? "Menyimpan..." : "Simpan"}
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+
+            {/* Password Dialog */}
+            <Dialog
+                open={isPasswordDialogOpen}
+                onOpenChange={setIsPasswordDialogOpen}
+            >
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Ubah Password Pengguna</DialogTitle>
+                        <DialogDescription>
+                            Ubah password untuk {userName}. Password minimal 8
+                            karakter.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <div className="space-y-4 py-4">
+                        <div className="space-y-2">
+                            <Label htmlFor="new-password">Password Baru</Label>
+                            <Input
+                                id="new-password"
+                                type="password"
+                                value={newPassword}
+                                onChange={(e) => setNewPassword(e.target.value)}
+                                placeholder="Masukkan password baru"
+                            />
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="confirm-password">
+                                Konfirmasi Password
+                            </Label>
+                            <Input
+                                id="confirm-password"
+                                type="password"
+                                value={confirmPassword}
+                                onChange={(e) =>
+                                    setConfirmPassword(e.target.value)
+                                }
+                                placeholder="Konfirmasi password baru"
+                            />
+                        </div>
+                    </div>
+                    <DialogFooter>
+                        <Button
+                            variant="outline"
+                            onClick={() => {
+                                setIsPasswordDialogOpen(false);
+                                setNewPassword("");
+                                setConfirmPassword("");
+                            }}
+                            disabled={isLoading}
+                        >
+                            Batal
+                        </Button>
+                        <Button
+                            onClick={handleSetPassword}
+                            disabled={isLoading}
+                        >
                             {isLoading ? "Menyimpan..." : "Simpan"}
                         </Button>
                     </DialogFooter>
