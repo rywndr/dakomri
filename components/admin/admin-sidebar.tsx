@@ -8,6 +8,7 @@ import {
     UserCog,
     LayoutDashboard,
     ChevronRight,
+    FilePlus,
 } from "lucide-react";
 import {
     Sidebar,
@@ -28,6 +29,12 @@ const navItems = [
         title: "Ajuan Pendaftaran",
         href: "/admin/submissions",
         icon: FileText,
+        badge: null,
+    },
+    {
+        title: "Buat Pengajuan",
+        href: "/admin/buat-pengajuan",
+        icon: FilePlus,
         badge: null,
     },
     {

@@ -10,6 +10,7 @@ import {
     Trash2,
     Edit,
     Key,
+    Link2,
 } from "lucide-react";
 import { authClient } from "@/lib/auth-client";
 import { Button } from "@/components/ui/button";
@@ -47,6 +48,8 @@ interface UserActionsProps {
     userName: string;
     userEmail: string;
     isBanned?: boolean;
+    hasSubmission?: boolean;
+    submissionId?: string | null;
 }
 
 /**
@@ -59,18 +62,37 @@ export function UserActions({
     userName,
     userEmail,
     isBanned = false,
+    hasSubmission = false,
+    submissionId = null,
 }: UserActionsProps) {
     const router = useRouter();
     const [isRoleDialogOpen, setIsRoleDialogOpen] = useState(false);
     const [isUpdateDialogOpen, setIsUpdateDialogOpen] = useState(false);
     const [isPasswordDialogOpen, setIsPasswordDialogOpen] = useState(false);
     const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+    const [isLinkDialogOpen, setIsLinkDialogOpen] = useState(false);
     const [selectedRole, setSelectedRole] = useState(currentRole || "user");
     const [updateName, setUpdateName] = useState(userName);
     const [updateEmail, setUpdateEmail] = useState(userEmail);
     const [newPassword, setNewPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
     const [isLoading, setIsLoading] = useState(false);
+    const [unlinkedSubmissions, setUnlinkedSubmissions] = useState<
+        Array<{
+            id: string;
+            namaDepan: string;
+            namaBelakang: string | null;
+            namaAlias: string | null;
+            nik: string;
+            kota: string;
+            kontakTelp: string;
+            status: string | null;
+            createdAt: Date;
+            createdBy: string | null;
+        }>
+    >([]);
+    const [selectedSubmissionId, setSelectedSubmissionId] = useState("");
+    const [isLoadingSubmissions, setIsLoadingSubmissions] = useState(false);
 
     const handleSetRole = async () => {
         setIsLoading(true);
@@ -249,6 +271,73 @@ export function UserActions({
         }
     };
 
+    const handleOpenLinkDialog = async () => {
+        setIsLinkDialogOpen(true);
+        setIsLoadingSubmissions(true);
+        try {
+            const response = await fetch("/api/admin/submissions/unlinked");
+            const data = await response.json();
+
+            if (response.ok) {
+                setUnlinkedSubmissions(data.submissions || []);
+            } else {
+                toast.error("Gagal memuat pengajuan", {
+                    description: data.error || "Silakan coba lagi",
+                });
+            }
+        } catch {
+            toast.error("Terjadi kesalahan", {
+                description: "Gagal memuat daftar pengajuan",
+            });
+        } finally {
+            setIsLoadingSubmissions(false);
+        }
+    };
+
+    const handleLinkSubmission = async () => {
+        if (!selectedSubmissionId) {
+            toast.error("Pilih pengajuan terlebih dahulu");
+            return;
+        }
+
+        setIsLoading(true);
+        try {
+            const response = await fetch("/api/admin/users/link-submission", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    userId,
+                    submissionId: selectedSubmissionId,
+                }),
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                toast.error("Gagal menghubungkan pengajuan", {
+                    description: data.error || "Silakan coba lagi",
+                });
+                return;
+            }
+
+            toast.success("Pengajuan berhasil dihubungkan", {
+                description: `Pengajuan telah dihubungkan dengan ${userName}`,
+            });
+
+            setIsLinkDialogOpen(false);
+            setSelectedSubmissionId("");
+            router.refresh();
+        } catch {
+            toast.error("Terjadi kesalahan", {
+                description: "Gagal menghubungkan pengajuan",
+            });
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
     return (
         <>
             <DropdownMenu>
@@ -277,6 +366,12 @@ export function UserActions({
                         <Shield className="mr-2 h-4 w-4" />
                         Ubah Role
                     </DropdownMenuItem>
+                    {!hasSubmission && (
+                        <DropdownMenuItem onClick={handleOpenLinkDialog}>
+                            <Link2 className="mr-2 h-4 w-4" />
+                            Link Pengajuan
+                        </DropdownMenuItem>
+                    )}
                     {isBanned ? (
                         <DropdownMenuItem onClick={handleUnbanUser}>
                             <UserCheck className="mr-2 h-4 w-4" />
@@ -481,6 +576,76 @@ export function UserActions({
                             disabled={isLoading}
                         >
                             {isLoading ? "Menghapus..." : "Hapus"}
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+
+            {/* Link Submission Dialog */}
+            <Dialog open={isLinkDialogOpen} onOpenChange={setIsLinkDialogOpen}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Link Pengajuan ke Pengguna</DialogTitle>
+                        <DialogDescription>
+                            Pilih pengajuan yang akan dihubungkan dengan{" "}
+                            {userName}. Hanya pengajuan yang belum terhubung
+                            dengan pengguna lain yang ditampilkan.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <div className="space-y-4 py-4">
+                        {isLoadingSubmissions ? (
+                            <div className="text-center text-sm text-muted-foreground">
+                                Memuat daftar pengajuan...
+                            </div>
+                        ) : unlinkedSubmissions.length === 0 ? (
+                            <div className="text-center text-sm text-muted-foreground">
+                                Tidak ada pengajuan yang tersedia untuk di-link
+                            </div>
+                        ) : (
+                            <Select
+                                value={selectedSubmissionId}
+                                onValueChange={setSelectedSubmissionId}
+                            >
+                                <SelectTrigger>
+                                    <SelectValue placeholder="Pilih pengajuan" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {unlinkedSubmissions.map((submission) => (
+                                        <SelectItem
+                                            key={submission.id}
+                                            value={submission.id}
+                                        >
+                                            {submission.namaDepan}{" "}
+                                            {submission.namaBelakang || ""} (
+                                            {submission.namaAlias || "No alias"}
+                                            ) - NIK: {submission.nik} -{" "}
+                                            {submission.kota}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        )}
+                    </div>
+                    <DialogFooter>
+                        <Button
+                            variant="outline"
+                            onClick={() => {
+                                setIsLinkDialogOpen(false);
+                                setSelectedSubmissionId("");
+                            }}
+                            disabled={isLoading}
+                        >
+                            Batal
+                        </Button>
+                        <Button
+                            onClick={handleLinkSubmission}
+                            disabled={
+                                isLoading ||
+                                !selectedSubmissionId ||
+                                unlinkedSubmissions.length === 0
+                            }
+                        >
+                            {isLoading ? "Menghubungkan..." : "Link Pengajuan"}
                         </Button>
                     </DialogFooter>
                 </DialogContent>

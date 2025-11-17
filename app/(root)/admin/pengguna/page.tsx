@@ -1,8 +1,8 @@
 import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
 import { db } from "@/drizzle/db";
-import { user } from "@/drizzle/schema";
-import { ilike, or, count, asc, eq, and } from "drizzle-orm";
+import { user, formSubmission } from "@/drizzle/schema";
+import { ilike, or, count, asc, eq, and, sql } from "drizzle-orm";
 import {
     Card,
     CardContent,
@@ -23,7 +23,7 @@ import { UserActions } from "@/components/admin/user-actions";
 import { PaginationControls } from "@/components/admin/pagination-controls";
 import { AdminSearch } from "@/components/admin/admin-search";
 import { UserFilters } from "@/components/admin/user-filters";
-import { Users, Shield, UserCheck } from "lucide-react";
+import { Users, Shield, UserCheck, Link2, Unlink } from "lucide-react";
 
 interface PageProps {
     searchParams: Promise<{
@@ -81,10 +81,20 @@ export default async function PenggunaPage({ searchParams }: PageProps) {
     const whereClause =
         whereConditions.length > 0 ? and(...whereConditions) : undefined;
 
-    // Query users from database
+    // Query users from database with submission info
     const users = await db
-        .select()
+        .select({
+            id: user.id,
+            name: user.name,
+            email: user.email,
+            role: user.role,
+            banned: user.banned,
+            createdAt: user.createdAt,
+            submissionId: formSubmission.id,
+            submissionStatus: formSubmission.status,
+        })
         .from(user)
+        .leftJoin(formSubmission, eq(user.id, formSubmission.userId))
         .where(whereClause)
         .orderBy(asc(user.name))
         .limit(limit)
@@ -200,6 +210,8 @@ export default async function PenggunaPage({ searchParams }: PageProps) {
                                 <TableHead>Email</TableHead>
                                 <TableHead>Role</TableHead>
                                 <TableHead>Status</TableHead>
+                                <TableHead>Status Pengajuan</TableHead>
+                                <TableHead>Link Status</TableHead>
                                 <TableHead>Terdaftar</TableHead>
                                 <TableHead className="text-right">
                                     Aksi
@@ -236,6 +248,56 @@ export default async function PenggunaPage({ searchParams }: PageProps) {
                                         )}
                                     </TableCell>
                                     <TableCell>
+                                        {user.submissionStatus ? (
+                                            <Badge
+                                                variant={
+                                                    user.submissionStatus ===
+                                                    "verified"
+                                                        ? "default"
+                                                        : user.submissionStatus ===
+                                                            "submitted"
+                                                          ? "secondary"
+                                                          : user.submissionStatus ===
+                                                              "rejected"
+                                                            ? "destructive"
+                                                            : "outline"
+                                                }
+                                            >
+                                                {user.submissionStatus ===
+                                                "verified"
+                                                    ? "terverifikasi"
+                                                    : user.submissionStatus ===
+                                                        "submitted"
+                                                      ? "menunggu"
+                                                      : user.submissionStatus ===
+                                                          "rejected"
+                                                        ? "ditolak"
+                                                        : user.submissionStatus}
+                                            </Badge>
+                                        ) : (
+                                            <Badge variant="outline">
+                                                belum ada
+                                            </Badge>
+                                        )}
+                                    </TableCell>
+                                    <TableCell>
+                                        {user.submissionId ? (
+                                            <div className="flex items-center gap-1 text-green-600">
+                                                <Link2 className="h-4 w-4" />
+                                                <span className="text-sm">
+                                                    terhubung
+                                                </span>
+                                            </div>
+                                        ) : (
+                                            <div className="flex items-center gap-1 text-muted-foreground">
+                                                <Unlink className="h-4 w-4" />
+                                                <span className="text-sm">
+                                                    tidak terhubung
+                                                </span>
+                                            </div>
+                                        )}
+                                    </TableCell>
+                                    <TableCell>
                                         {new Date(
                                             user.createdAt,
                                         ).toLocaleDateString("id-ID", {
@@ -251,6 +313,10 @@ export default async function PenggunaPage({ searchParams }: PageProps) {
                                             userName={user.name}
                                             userEmail={user.email}
                                             isBanned={user.banned || false}
+                                            hasSubmission={!!user.submissionId}
+                                            submissionId={
+                                                user.submissionId || null
+                                            }
                                         />
                                     </TableCell>
                                 </TableRow>
