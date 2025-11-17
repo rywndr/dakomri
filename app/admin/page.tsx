@@ -1,7 +1,4 @@
-import { useRouter } from "next/navigation";
-import { authClient } from "@/lib/auth-client";
-import { Spinner } from "@/components/ui/spinner";
-import { Card, CardContent } from "@/components/ui/card";
+"use client";
 
 export default function AdminPage() {
     return (

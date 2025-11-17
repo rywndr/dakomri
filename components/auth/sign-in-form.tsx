@@ -45,6 +45,7 @@ export function SignInForm() {
                 });
 
                 router.push("/");
+                router.refresh();
             } catch {
                 toast.error("Terjadi kesalahan", {
                     description: "Silakan coba lagi nanti",

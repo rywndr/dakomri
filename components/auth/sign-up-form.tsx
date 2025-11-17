@@ -60,6 +60,7 @@ export function SignUpForm() {
                 });
 
                 router.push("/");
+                router.refresh();
             } catch {
                 toast.error("Terjadi kesalahan", {
                     description: "Silakan coba lagi nanti",
