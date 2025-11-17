@@ -18,3 +18,6 @@ export const auth = betterAuth({
     },
     plugins: [admin()],
 });
+
+// Export Session type for type safety
+export type Session = typeof auth.$Infer.Session;
