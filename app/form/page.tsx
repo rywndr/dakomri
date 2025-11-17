@@ -4,7 +4,6 @@ import { useState, useEffect, useRef } from "react";
 import { useForm } from "@tanstack/react-form";
 import { useRouter } from "next/navigation";
 import { authClient } from "@/lib/auth-client";
-import { ZodIssue } from "zod";
 import { formSubmissionSchema } from "@/lib/validations/form-validation";
 import { Button } from "@/components/ui/button";
 import {
@@ -16,6 +15,7 @@ import {
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Spinner } from "@/components/ui/spinner";
+import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
 import { Section1 } from "@/components/form/section-1";
 import { Section2 } from "@/components/form/section-2";
@@ -207,9 +207,45 @@ export default function FormPage() {
         return (
             <div className="container mx-auto py-8 px-4 max-w-5xl">
                 <Card>
-                    <CardContent className="flex items-center justify-center py-12">
-                        <Spinner className="mr-2" />
-                        <span>Memeriksa status formulir...</span>
+                    <CardHeader>
+                        <Skeleton className="h-8 w-3/4 mb-2" />
+                        <Skeleton className="h-4 w-full" />
+                    </CardHeader>
+                    <CardContent className="space-y-8">
+                        {/* Section skeleton */}
+                        {[1, 2, 3, 4, 5, 6].map((section) => (
+                            <div key={section} className="space-y-6">
+                                <div>
+                                    <Skeleton className="h-6 w-48 mb-1" />
+                                    <Skeleton className="h-4 w-64" />
+                                </div>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div className="space-y-2">
+                                        <Skeleton className="h-4 w-32" />
+                                        <Skeleton className="h-10 w-full" />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Skeleton className="h-4 w-32" />
+                                        <Skeleton className="h-10 w-full" />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Skeleton className="h-4 w-32" />
+                                        <Skeleton className="h-10 w-full" />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Skeleton className="h-4 w-32" />
+                                        <Skeleton className="h-10 w-full" />
+                                    </div>
+                                </div>
+                                {section < 6 && <Separator />}
+                            </div>
+                        ))}
+                        {/* Action buttons skeleton */}
+                        <div className="flex flex-col sm:flex-row gap-4 pt-6">
+                            <Skeleton className="h-10 flex-1" />
+                        </div>
+                        {/* Info note skeleton */}
+                        <Skeleton className="h-16 w-full" />
                     </CardContent>
                 </Card>
             </div>
