@@ -163,7 +163,7 @@ export function Navbar() {
                     </DropdownMenu>
                 ) : (
                     <Link href="/auth">
-                        <button className="text-sm font-medium hover:opacity-80 transition-opacity">
+                        <button className="py-2 px-2 rounded-md text-sm font-medium bg-black text-white hover:opacity-80 transition-opacity">
                             Sign In
                         </button>
                     </Link>

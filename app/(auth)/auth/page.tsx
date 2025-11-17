@@ -11,7 +11,7 @@ import Image from "next/image";
 
 export default function AuthPage() {
     return (
-        <div className="flex min-h-screen items-center justify-center p-4 bg-gradient-to-br from-background to-muted/20">
+        <div className="flex min-h-screen items-center justify-center p-4">
             <div className="w-full max-w-md">
                 <div className="mb-2 text-center">
                     <div className="mx-auto mb-4 size-28 relative">
