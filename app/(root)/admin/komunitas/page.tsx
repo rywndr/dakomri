@@ -1,6 +1,6 @@
 import { db } from "@/drizzle/db";
 import { formSubmission, user } from "@/drizzle/schema";
-import { eq, desc, asc, ilike, or, and, count } from "drizzle-orm";
+import { eq, desc, and, count } from "drizzle-orm";
 import {
     Card,
     CardContent,
@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { KomunitasActions } from "@/components/admin/komunitas-actions";
+import { PaginationControls } from "@/components/admin/pagination-controls";
 import {
     Empty,
     EmptyHeader,
@@ -27,7 +28,18 @@ import {
 } from "@/components/ui/empty";
 import { Users, Briefcase } from "lucide-react";
 
-export default async function KomunitasPage() {
+interface PageProps {
+    searchParams: Promise<{
+        page?: string;
+    }>;
+}
+
+export default async function KomunitasPage({ searchParams }: PageProps) {
+    const params = await searchParams;
+    const currentPage = parseInt(params.page || "1", 10);
+    const limit = 10;
+    const offset = (currentPage - 1) * limit;
+
     // Get verified community members
     const members = await db
         .select({
@@ -53,14 +65,20 @@ export default async function KomunitasPage() {
             userEmail: user.email,
         })
         .from(formSubmission)
-        .leftJoin(user, eq(formSubmission.userId, user.id));
+        .leftJoin(user, eq(formSubmission.userId, user.id))
+        .where(eq(formSubmission.status, "verified"))
+        .orderBy(desc(formSubmission.verifiedAt))
+        .limit(limit)
+        .offset(offset);
 
     // Total count
     const [totalResult] = await db
         .select({ count: count() })
-        .from(formSubmission);
+        .from(formSubmission)
+        .where(eq(formSubmission.status, "verified"));
 
     const total = totalResult?.count || 0;
+    const totalPages = Math.ceil(total / limit);
 
     // Statistik
     const [bekerjaCount] = await db
@@ -280,6 +298,11 @@ export default async function KomunitasPage() {
                                     })}
                                 </TableBody>
                             </Table>
+
+                            <PaginationControls
+                                currentPage={currentPage}
+                                totalPages={totalPages}
+                            />
                         </>
                     )}
                 </CardContent>

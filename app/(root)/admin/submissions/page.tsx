@@ -34,6 +34,7 @@ interface PageProps {
         status?: string;
         sortBy?: string;
         sortDirection?: string;
+        page?: string;
     }>;
 }
 
@@ -42,7 +43,9 @@ export default async function SubmissionsPage({ searchParams }: PageProps) {
     const statusFilter = params.status || "all";
     const sortBy = params.sortBy || "createdAt";
     const sortDirection = (params.sortDirection || "desc") as "asc" | "desc";
+    const currentPage = parseInt(params.page || "1", 10);
     const limit = 10;
+    const offset = (currentPage - 1) * limit;
 
     // Build where conditions
     const conditions = [];
@@ -101,7 +104,8 @@ export default async function SubmissionsPage({ searchParams }: PageProps) {
         .leftJoin(user, eq(formSubmission.userId, user.id))
         .where(whereClause)
         .orderBy(sortDirection === "desc" ? desc(sortColumn) : asc(sortColumn))
-        .limit(limit);
+        .limit(limit)
+        .offset(offset);
 
     // Get total count
     const [totalResult] = await db
@@ -359,6 +363,11 @@ export default async function SubmissionsPage({ searchParams }: PageProps) {
                                     })}
                                 </TableBody>
                             </Table>
+
+                            <PaginationControls
+                                currentPage={currentPage}
+                                totalPages={totalPages}
+                            />
                         </>
                     )}
                 </CardContent>

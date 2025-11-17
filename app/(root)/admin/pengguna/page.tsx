@@ -17,16 +17,27 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { UserActions } from "@/components/admin/user-actions";
+import { PaginationControls } from "@/components/admin/pagination-controls";
 import { Users, Shield, UserCheck } from "lucide-react";
 
-export default async function PenggunaPage() {
+interface PageProps {
+    searchParams: Promise<{
+        page?: string;
+    }>;
+}
+
+export default async function PenggunaPage({ searchParams }: PageProps) {
+    const params = await searchParams;
+    const currentPage = parseInt(params.page || "1", 10);
     const limit = 10;
+    const offset = (currentPage - 1) * limit;
 
     const usersData = await auth.api.listUsers({
         query: {
             searchField: "name",
             searchOperator: "contains",
             limit: limit.toString(),
+            offset: offset.toString(),
             sortBy: "name",
             sortDirection: "asc",
         },
@@ -35,6 +46,7 @@ export default async function PenggunaPage() {
 
     const users = usersData?.users || [];
     const total = usersData?.total || 0;
+    const totalPages = Math.ceil(total / limit);
 
     const totalUsers = total;
     const adminCount = users.filter((u) => u.role === "admin").length;
@@ -178,6 +190,11 @@ export default async function PenggunaPage() {
                             ))}
                         </TableBody>
                     </Table>
+
+                    <PaginationControls
+                        currentPage={currentPage}
+                        totalPages={totalPages}
+                    />
                 </CardContent>
             </Card>
         </div>
