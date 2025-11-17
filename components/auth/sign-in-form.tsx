@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Spinner } from "@/components/ui/spinner";
+import { PasswordInput } from "@/components/ui/password";
 import { toast } from "sonner";
 import { SocialAuthButtons } from "./social-auth-buttons";
 
@@ -115,10 +116,9 @@ export function SignInForm() {
                 {(field) => (
                     <div className="flex flex-col gap-2">
                         <Label htmlFor={field.name}>Password</Label>
-                        <Input
+                        <PasswordInput
                             id={field.name}
                             name={field.name}
-                            type="password"
                             placeholder="••••••••"
                             value={field.state.value}
                             onChange={(e) => field.handleChange(e.target.value)}

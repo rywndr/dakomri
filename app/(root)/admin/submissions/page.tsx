@@ -20,6 +20,13 @@ import { Badge } from "@/components/ui/badge";
 import { PaginationControls } from "@/components/admin/pagination-controls";
 import { SubmissionActions } from "@/components/admin/submission-actions";
 import { SubmissionFilters } from "@/components/admin/submission-filters";
+import {
+    Empty,
+    EmptyHeader,
+    EmptyMedia,
+    EmptyTitle,
+    EmptyDescription,
+} from "@/components/ui/empty";
 import { FileText, CheckCircle, XCircle, Clock } from "lucide-react";
 
 interface PageProps {
@@ -211,21 +218,23 @@ export default async function SubmissionsPage({ searchParams }: PageProps) {
                 </CardHeader>
                 <CardContent>
                     {submissions.length === 0 ? (
-                        <div className="flex items-center justify-center h-[400px] text-muted-foreground">
-                            <div className="text-center">
-                                <FileText className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                                <p className="font-medium">
+                        <Empty className="h-[400px]">
+                            <EmptyHeader>
+                                <EmptyMedia variant="icon">
+                                    <FileText />
+                                </EmptyMedia>
+                                <EmptyTitle>
                                     {statusFilter !== "all"
                                         ? "Tidak ada submission yang ditemukan"
                                         : "Belum ada submission masuk"}
-                                </p>
-                                <p className="text-sm mt-2">
+                                </EmptyTitle>
+                                <EmptyDescription>
                                     {statusFilter !== "all"
                                         ? "Coba ubah filter atau pencarian Anda"
                                         : "Submission yang diajukan akan muncul di sini"}
-                                </p>
-                            </div>
-                        </div>
+                                </EmptyDescription>
+                            </EmptyHeader>
+                        </Empty>
                     ) : (
                         <>
                             <Table>

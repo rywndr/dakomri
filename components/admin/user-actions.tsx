@@ -38,6 +38,7 @@ import {
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password";
 import { toast } from "sonner";
 
 interface UserActionsProps {
@@ -410,9 +411,8 @@ export function UserActions({
                     <div className="space-y-4 py-4">
                         <div className="space-y-2">
                             <Label htmlFor="new-password">Password Baru</Label>
-                            <Input
+                            <PasswordInput
                                 id="new-password"
-                                type="password"
                                 value={newPassword}
                                 onChange={(e) => setNewPassword(e.target.value)}
                                 placeholder="Masukkan password baru"
@@ -422,9 +422,8 @@ export function UserActions({
                             <Label htmlFor="confirm-password">
                                 Konfirmasi Password
                             </Label>
-                            <Input
+                            <PasswordInput
                                 id="confirm-password"
-                                type="password"
                                 value={confirmPassword}
                                 onChange={(e) =>
                                     setConfirmPassword(e.target.value)

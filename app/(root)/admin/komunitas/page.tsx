@@ -18,6 +18,13 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { KomunitasActions } from "@/components/admin/komunitas-actions";
+import {
+    Empty,
+    EmptyHeader,
+    EmptyMedia,
+    EmptyTitle,
+    EmptyDescription,
+} from "@/components/ui/empty";
 import { Users, Briefcase } from "lucide-react";
 
 export default async function KomunitasPage() {
@@ -131,11 +138,20 @@ export default async function KomunitasPage() {
                 </CardHeader>
                 <CardContent>
                     {members.length === 0 ? (
-                        <div className="flex items-center justify-center h-[400px] text-muted-foreground">
-                            <div className="text-center">
-                                <Users className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                            </div>
-                        </div>
+                        <Empty className="h-[400px]">
+                            <EmptyHeader>
+                                <EmptyMedia variant="icon">
+                                    <Users />
+                                </EmptyMedia>
+                                <EmptyTitle>
+                                    Belum ada anggota komunitas
+                                </EmptyTitle>
+                                <EmptyDescription>
+                                    Anggota yang telah diverifikasi akan muncul
+                                    di sini
+                                </EmptyDescription>
+                            </EmptyHeader>
+                        </Empty>
                     ) : (
                         <>
                             <Table>
