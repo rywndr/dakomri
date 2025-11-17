@@ -1,6 +1,6 @@
 import { db } from "@/drizzle/db";
 import { formSubmission, user } from "@/drizzle/schema";
-import { eq, desc, and, count } from "drizzle-orm";
+import { eq, desc, and, count, ilike, or } from "drizzle-orm";
 import {
     Card,
     CardContent,
@@ -18,7 +18,10 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { KomunitasActions } from "@/components/admin/komunitas-actions";
+import { KomunitasExportButton } from "@/components/admin/komunitas-export-button";
 import { PaginationControls } from "@/components/admin/pagination-controls";
+import { AdminSearch } from "@/components/admin/admin-search";
+import { KomunitasFilters } from "@/components/admin/komunitas-filters";
 import {
     Empty,
     EmptyHeader,
@@ -31,14 +34,60 @@ import { Users, Briefcase } from "lucide-react";
 interface PageProps {
     searchParams: Promise<{
         page?: string;
+        search?: string;
+        employment?: string;
+        discrimination?: string;
+        socialAssistance?: string;
     }>;
 }
 
 export default async function KomunitasPage({ searchParams }: PageProps) {
     const params = await searchParams;
     const currentPage = parseInt(params.page || "1", 10);
+    const searchQuery = params.search || "";
+    const employmentFilter = params.employment || "all";
+    const discriminationFilter = params.discrimination || "all";
+    const socialAssistanceFilter = params.socialAssistance || "all";
     const limit = 10;
     const offset = (currentPage - 1) * limit;
+
+    // Build where conditions
+    const whereConditions = [eq(formSubmission.status, "verified")];
+
+    // Add search conditions
+    if (searchQuery) {
+        whereConditions.push(
+            or(
+                ilike(formSubmission.namaDepan, `%${searchQuery}%`),
+                ilike(formSubmission.namaBelakang, `%${searchQuery}%`),
+                ilike(formSubmission.namaAlias, `%${searchQuery}%`),
+                ilike(formSubmission.nik, `%${searchQuery}%`),
+                ilike(formSubmission.kota, `%${searchQuery}%`),
+            )!,
+        );
+    }
+
+    // Employment status filter
+    if (employmentFilter !== "all") {
+        whereConditions.push(
+            eq(formSubmission.statusPekerjaan, employmentFilter),
+        );
+    }
+
+    // Discrimination filter
+    if (discriminationFilter !== "all") {
+        whereConditions.push(
+            eq(formSubmission.pernahDiskriminasi, discriminationFilter),
+        );
+    }
+
+    // Social Assistance filter
+    if (socialAssistanceFilter !== "all") {
+        const receivesAssistance = socialAssistanceFilter === "yes";
+        whereConditions.push(
+            eq(formSubmission.menerimaBantuanSosial, receivesAssistance),
+        );
+    }
 
     // Get verified community members
     const members = await db
@@ -66,7 +115,7 @@ export default async function KomunitasPage({ searchParams }: PageProps) {
         })
         .from(formSubmission)
         .leftJoin(user, eq(formSubmission.userId, user.id))
-        .where(eq(formSubmission.status, "verified"))
+        .where(and(...whereConditions))
         .orderBy(desc(formSubmission.verifiedAt))
         .limit(limit)
         .offset(offset);
@@ -75,7 +124,7 @@ export default async function KomunitasPage({ searchParams }: PageProps) {
     const [totalResult] = await db
         .select({ count: count() })
         .from(formSubmission)
-        .where(eq(formSubmission.status, "verified"));
+        .where(and(...whereConditions));
 
     const total = totalResult?.count || 0;
     const totalPages = Math.ceil(total / limit);
@@ -105,6 +154,7 @@ export default async function KomunitasPage({ searchParams }: PageProps) {
                         Kelola data anggota komunitas terverifikasi
                     </p>
                 </div>
+                <KomunitasExportButton totalMembers={totalMembers} />
             </div>
 
             {/* Stats */}
@@ -152,6 +202,19 @@ export default async function KomunitasPage({ searchParams }: PageProps) {
                                 Daftar anggota yang telah diverifikasi
                             </CardDescription>
                         </div>
+                    </div>
+                    <div className="mt-4 flex flex-col gap-4 sm:flex-row">
+                        <KomunitasFilters
+                            currentEmployment={employmentFilter}
+                            currentDiscrimination={discriminationFilter}
+                            currentSocialAssistance={socialAssistanceFilter}
+                        />
+                    </div>
+                    <div className="mt-4">
+                        <AdminSearch
+                            placeholder="Cari nama, NIK, atau lokasi..."
+                            searchParam="search"
+                        />
                     </div>
                 </CardHeader>
                 <CardContent>

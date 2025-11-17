@@ -1,5 +1,8 @@
 import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
+import { db } from "@/drizzle/db";
+import { user } from "@/drizzle/schema";
+import { ilike, or, count, asc, eq, and } from "drizzle-orm";
 import {
     Card,
     CardContent,
@@ -18,37 +21,89 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { UserActions } from "@/components/admin/user-actions";
 import { PaginationControls } from "@/components/admin/pagination-controls";
+import { AdminSearch } from "@/components/admin/admin-search";
+import { UserFilters } from "@/components/admin/user-filters";
 import { Users, Shield, UserCheck } from "lucide-react";
 
 interface PageProps {
     searchParams: Promise<{
         page?: string;
+        search?: string;
+        role?: string;
+        status?: string;
     }>;
 }
 
 export default async function PenggunaPage({ searchParams }: PageProps) {
-    const params = await searchParams;
-    const currentPage = parseInt(params.page || "1", 10);
-    const limit = 10;
-    const offset = (currentPage - 1) * limit;
-
-    const usersData = await auth.api.listUsers({
-        query: {
-            searchField: "name",
-            searchOperator: "contains",
-            limit: limit.toString(),
-            offset: offset.toString(),
-            sortBy: "name",
-            sortDirection: "asc",
-        },
+    // Verify admin access
+    const session = await auth.api.getSession({
         headers: await headers(),
     });
 
-    const users = usersData?.users || [];
-    const total = usersData?.total || 0;
+    if (!session?.user || session.user.role !== "admin") {
+        throw new Error("Unauthorized");
+    }
+
+    const params = await searchParams;
+    const currentPage = parseInt(params.page || "1", 10);
+    const searchQuery = params.search || "";
+    const roleFilter = params.role || "all";
+    const statusFilter = params.status || "all";
+    const limit = 10;
+    const offset = (currentPage - 1) * limit;
+
+    // Build where conditions
+    const whereConditions = [];
+
+    // Search conditions
+    if (searchQuery) {
+        whereConditions.push(
+            or(
+                ilike(user.name, `%${searchQuery}%`),
+                ilike(user.email, `%${searchQuery}%`),
+            )!,
+        );
+    }
+
+    // Role filter
+    if (roleFilter !== "all") {
+        whereConditions.push(eq(user.role, roleFilter));
+    }
+
+    // Status filter (banned/active)
+    if (statusFilter === "banned") {
+        whereConditions.push(eq(user.banned, true));
+    } else if (statusFilter === "active") {
+        whereConditions.push(eq(user.banned, false));
+    }
+
+    // Build final where clause
+    const whereClause =
+        whereConditions.length > 0 ? and(...whereConditions) : undefined;
+
+    // Query users from database
+    const users = await db
+        .select()
+        .from(user)
+        .where(whereClause)
+        .orderBy(asc(user.name))
+        .limit(limit)
+        .offset(offset);
+
+    // Get total count
+    const [totalResult] = await db
+        .select({ count: count() })
+        .from(user)
+        .where(whereClause);
+
+    const total = totalResult?.count || 0;
     const totalPages = Math.ceil(total / limit);
 
-    const totalUsers = total;
+    // Get total users (without pagination)
+    const [totalUsersResult] = await db.select({ count: count() }).from(user);
+    const totalUsers = totalUsersResult?.count || 0;
+
+    // Calculate stats from current page results
     const adminCount = users.filter((u) => u.role === "admin").length;
     const userCount = users.filter((u) => u.role === "user" || !u.role).length;
 
@@ -123,6 +178,18 @@ export default async function PenggunaPage({ searchParams }: PageProps) {
                                 Daftar pengguna terdaftar dan kelola hak akses
                             </CardDescription>
                         </div>
+                    </div>
+                    <div className="mt-4 flex flex-col gap-4 sm:flex-row">
+                        <UserFilters
+                            currentRole={roleFilter}
+                            currentStatus={statusFilter}
+                        />
+                    </div>
+                    <div className="mt-4">
+                        <AdminSearch
+                            placeholder="Cari nama atau email pengguna..."
+                            searchParam="search"
+                        />
                     </div>
                 </CardHeader>
                 <CardContent>

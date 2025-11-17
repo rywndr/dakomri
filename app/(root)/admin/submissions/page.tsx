@@ -1,6 +1,6 @@
 import { db } from "@/drizzle/db";
 import { formSubmission, user } from "@/drizzle/schema";
-import { eq, desc, asc, or, and, count } from "drizzle-orm";
+import { eq, desc, asc, or, and, count, ilike } from "drizzle-orm";
 import {
     Card,
     CardContent,
@@ -20,6 +20,7 @@ import { Badge } from "@/components/ui/badge";
 import { PaginationControls } from "@/components/admin/pagination-controls";
 import { SubmissionActions } from "@/components/admin/submission-actions";
 import { SubmissionFilters } from "@/components/admin/submission-filters";
+import { AdminSearch } from "@/components/admin/admin-search";
 import {
     Empty,
     EmptyHeader,
@@ -35,6 +36,7 @@ interface PageProps {
         sortBy?: string;
         sortDirection?: string;
         page?: string;
+        search?: string;
     }>;
 }
 
@@ -44,6 +46,7 @@ export default async function SubmissionsPage({ searchParams }: PageProps) {
     const sortBy = params.sortBy || "createdAt";
     const sortDirection = (params.sortDirection || "desc") as "asc" | "desc";
     const currentPage = parseInt(params.page || "1", 10);
+    const searchQuery = params.search || "";
     const limit = 10;
     const offset = (currentPage - 1) * limit;
 
@@ -61,6 +64,19 @@ export default async function SubmissionsPage({ searchParams }: PageProps) {
                 eq(formSubmission.status, "verified"),
                 eq(formSubmission.status, "rejected"),
             ),
+        );
+    }
+
+    // Add search conditions
+    if (searchQuery) {
+        conditions.push(
+            or(
+                ilike(formSubmission.namaDepan, `%${searchQuery}%`),
+                ilike(formSubmission.namaBelakang, `%${searchQuery}%`),
+                ilike(formSubmission.namaAlias, `%${searchQuery}%`),
+                ilike(formSubmission.nik, `%${searchQuery}%`),
+                ilike(formSubmission.kota, `%${searchQuery}%`),
+            )!,
         );
     }
 
@@ -217,6 +233,12 @@ export default async function SubmissionsPage({ searchParams }: PageProps) {
                             currentStatus={statusFilter}
                             currentSort={sortBy}
                             currentDirection={sortDirection}
+                        />
+                    </div>
+                    <div className="mt-4">
+                        <AdminSearch
+                            placeholder="Cari nama, NIK, atau lokasi..."
+                            searchParam="search"
                         />
                     </div>
                 </CardHeader>
