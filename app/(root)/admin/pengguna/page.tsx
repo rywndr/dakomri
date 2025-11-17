@@ -35,7 +35,6 @@ export default async function PenggunaPage() {
 
     const users = usersData?.users || [];
     const total = usersData?.total || 0;
-    const totalPages = Math.ceil(total / limit);
 
     const totalUsers = total;
     const adminCount = users.filter((u) => u.role === "admin").length;
@@ -54,7 +53,7 @@ export default async function PenggunaPage() {
                 </div>
             </div>
 
-            {/* Stats Cards */}
+            {/* Statistik */}
             <div className="grid gap-4 md:grid-cols-3">
                 <Card>
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
