@@ -49,7 +49,7 @@ export async function Navbar() {
                         </NavigationMenuItem>
                         <NavigationMenuItem>
                             <NavigationMenuLink
-                                href="/statistics"
+                                href="/statistik"
                                 className={navigationMenuTriggerStyle()}
                             >
                                 Statistik
