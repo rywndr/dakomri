@@ -11,7 +11,7 @@ import { nanoid } from "nanoid";
  */
 export async function POST(req: NextRequest) {
     try {
-        // Get current user (optional - form bisa diisi tanpa login)
+        // Get current user
         const session = await auth.api.getSession({
             headers: req.headers,
         });
@@ -24,10 +24,14 @@ export async function POST(req: NextRequest) {
         const validation = formSubmissionSchema.safeParse(body);
 
         if (!validation.success) {
+            console.error("Form validation failed:", validation.error.errors);
             return NextResponse.json(
                 {
                     error: "Validasi gagal",
                     details: validation.error.errors,
+                    message: validation.error.errors
+                        .map((err) => `${err.path.join(".")}: ${err.message}`)
+                        .join(", "),
                 },
                 { status: 400 },
             );
