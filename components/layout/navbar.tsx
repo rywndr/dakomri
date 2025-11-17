@@ -3,9 +3,17 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { LogOutIcon, ShieldIcon } from "lucide-react";
+import {
+    LogOutIcon,
+    ShieldIcon,
+    CheckCircle2,
+    Clock,
+    XCircle,
+    FileText,
+} from "lucide-react";
 import { authClient } from "@/lib/auth-client";
 import { getInitials, getRoleBadgeColor } from "@/lib/helpers";
+import { useEffect, useState } from "react";
 import {
     NavigationMenu,
     NavigationMenuList,
@@ -27,6 +35,29 @@ import { toast } from "sonner";
 export function Navbar() {
     const router = useRouter();
     const { data: session } = authClient.useSession();
+    const [submissionStatus, setSubmissionStatus] = useState<{
+        hasSubmitted: boolean;
+        status: string | null;
+    }>({ hasSubmitted: false, status: null });
+
+    /**
+     * Fetch user's form submission status
+     */
+    useEffect(() => {
+        if (session?.user) {
+            fetch("/api/form/status")
+                .then((res) => res.json())
+                .then((data) => {
+                    setSubmissionStatus({
+                        hasSubmitted: data.hasSubmitted || false,
+                        status: data.status || null,
+                    });
+                })
+                .catch((error) => {
+                    console.error("Failed to fetch submission status:", error);
+                });
+        }
+    }, [session]);
 
     /**
      * Handle logout user
@@ -101,14 +132,16 @@ export function Navbar() {
                                 Kegiatan
                             </NavigationMenuLink>
                         </NavigationMenuItem>
-                        <NavigationMenuItem>
-                            <NavigationMenuLink
-                                href="/admin"
-                                className={navigationMenuTriggerStyle()}
-                            >
-                                Admin
-                            </NavigationMenuLink>
-                        </NavigationMenuItem>
+                        {session?.user?.role === "admin" && (
+                            <NavigationMenuItem>
+                                <NavigationMenuLink
+                                    href="/admin"
+                                    className={navigationMenuTriggerStyle()}
+                                >
+                                    Admin
+                                </NavigationMenuLink>
+                            </NavigationMenuItem>
+                        )}
                     </NavigationMenuList>
                 </NavigationMenu>
 
@@ -150,6 +183,46 @@ export function Navbar() {
                                 >
                                     {session.user?.role ?? "user"}
                                 </span>
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem disabled>
+                                <FileText className="mr-2 size-4" />
+                                <span className="flex-1">Status Form</span>
+                                {submissionStatus.hasSubmitted ? (
+                                    <div className="flex items-center gap-1">
+                                        {submissionStatus.status ===
+                                            "submitted" && (
+                                            <>
+                                                <Clock className="size-3 text-yellow-500" />
+                                                <span className="text-xs text-yellow-600">
+                                                    Menunggu
+                                                </span>
+                                            </>
+                                        )}
+                                        {submissionStatus.status ===
+                                            "verified" && (
+                                            <>
+                                                <CheckCircle2 className="size-3 text-green-500" />
+                                                <span className="text-xs text-green-600">
+                                                    Terverifikasi
+                                                </span>
+                                            </>
+                                        )}
+                                        {submissionStatus.status ===
+                                            "rejected" && (
+                                            <>
+                                                <XCircle className="size-3 text-red-500" />
+                                                <span className="text-xs text-red-600">
+                                                    Ditolak
+                                                </span>
+                                            </>
+                                        )}
+                                    </div>
+                                ) : (
+                                    <span className="text-xs text-muted-foreground">
+                                        Belum Submit
+                                    </span>
+                                )}
                             </DropdownMenuItem>
                             <DropdownMenuSeparator />
                             <DropdownMenuItem
