@@ -20,21 +20,7 @@ export default function SubmissionsPage() {
                 </div>
             </div>
 
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-                <Card>
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">
-                            Total Submissions
-                        </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-2xl font-bold">0</div>
-                        <p className="text-xs text-muted-foreground">
-                            Total formulir masuk
-                        </p>
-                    </CardContent>
-                </Card>
-
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-2">
                 <Card>
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                         <CardTitle className="text-sm font-medium">
@@ -45,20 +31,6 @@ export default function SubmissionsPage() {
                         <div className="text-2xl font-bold">0</div>
                         <p className="text-xs text-muted-foreground">
                             Perlu ditinjau
-                        </p>
-                    </CardContent>
-                </Card>
-
-                <Card>
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">
-                            Terverifikasi
-                        </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-2xl font-bold">0</div>
-                        <p className="text-xs text-muted-foreground">
-                            Sudah disetujui
                         </p>
                     </CardContent>
                 </Card>

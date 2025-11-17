@@ -15,7 +15,7 @@ export default function KomunitasPage() {
                         Komunitas
                     </h1>
                     <p className="text-muted-foreground">
-                        Kelola data anggota komunitas dan statistik
+                        Kelola data anggota komunitas
                     </p>
                 </div>
             </div>
@@ -31,48 +31,6 @@ export default function KomunitasPage() {
                         <div className="text-2xl font-bold">0</div>
                         <p className="text-xs text-muted-foreground">
                             Terdaftar di sistem
-                        </p>
-                    </CardContent>
-                </Card>
-
-                <Card>
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">
-                            Aktif Bulan Ini
-                        </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-2xl font-bold">0</div>
-                        <p className="text-xs text-muted-foreground">
-                            +0% dari bulan lalu
-                        </p>
-                    </CardContent>
-                </Card>
-
-                <Card>
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">
-                            Terverifikasi
-                        </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-2xl font-bold">0</div>
-                        <p className="text-xs text-muted-foreground">
-                            Data terverifikasi
-                        </p>
-                    </CardContent>
-                </Card>
-
-                <Card>
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">
-                            Pending
-                        </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-2xl font-bold">0</div>
-                        <p className="text-xs text-muted-foreground">
-                            Menunggu verifikasi
                         </p>
                     </CardContent>
                 </Card>
