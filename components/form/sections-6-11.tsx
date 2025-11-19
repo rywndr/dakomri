@@ -1,7 +1,11 @@
 "use client";
 
-import { FormApi } from "@tanstack/react-form";
-import { FormData } from "@/types/form";
+import type {
+    CommunityFormApi,
+    AksesLayananKesehatan,
+    JenisDiskriminasi,
+    PernahDiskriminasi,
+} from "@/types/form";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -18,7 +22,7 @@ import { MultiInput } from "./multi-input";
  * Fields: Pernah pelatihan, jenis pelatihan, penyelenggara, pelatihan yang diinginkan
  */
 interface Section6Props {
-    form: FormApi<FormData, any>;
+    form: CommunityFormApi;
 }
 
 export function Section6({ form }: Section6Props) {
@@ -45,7 +49,7 @@ export function Section6({ form }: Section6Props) {
                         <div className="grid grid-cols-1 gap-4">
                             {/* Pernah Menerima Pelatihan */}
                             <form.Field name="pernahPelatihanKeterampilan">
-                                {(field: any) => (
+                                {(field) => (
                                     <div className="space-y-2">
                                         <Label>
                                             Pernah Menerima Pelatihan
@@ -89,7 +93,7 @@ export function Section6({ form }: Section6Props) {
 
                             {/* Jenis Pelatihan yang Pernah Diikuti */}
                             <form.Field name="jenisPelatihanDiikuti">
-                                {(field: any) => (
+                                {(field) => (
                                     <MultiInput
                                         label="Jenis Pelatihan yang Pernah Diikuti"
                                         values={field.state.value || []}
@@ -104,7 +108,7 @@ export function Section6({ form }: Section6Props) {
 
                             {/* Penyelenggara Pelatihan */}
                             <form.Field name="penyelenggaraPelatihan">
-                                {(field: any) => (
+                                {(field) => (
                                     <MultiInput
                                         label="Penyelenggara Pelatihan"
                                         values={field.state.value || []}
@@ -119,7 +123,7 @@ export function Section6({ form }: Section6Props) {
 
                             {/* Pelatihan yang Diinginkan */}
                             <form.Field name="pelatihanDiinginkan">
-                                {(field: any) => (
+                                {(field) => (
                                     <MultiInput
                                         label="Pelatihan yang Diinginkan"
                                         values={field.state.value || []}
@@ -143,7 +147,7 @@ export function Section6({ form }: Section6Props) {
  * Fields: Jenis jaminan sosial, nomor identitas jaminan
  */
 interface Section7Props {
-    form: FormApi<FormData, any>;
+    form: CommunityFormApi;
 }
 
 export function Section7({ form }: Section7Props) {
@@ -170,7 +174,7 @@ export function Section7({ form }: Section7Props) {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             {/* Jenis Jaminan Sosial */}
                             <form.Field name="jenisJaminanSosial">
-                                {(field: any) => (
+                                {(field) => (
                                     <div className="space-y-2">
                                         <Label htmlFor="jenisJaminanSosial">
                                             Jenis Jaminan Sosial
@@ -232,7 +236,7 @@ export function Section7({ form }: Section7Props) {
 
                             {/* Nomor Identitas Jaminan Sosial */}
                             <form.Field name="nomorIdentitasJaminan">
-                                {(field: any) => (
+                                {(field) => (
                                     <div className="space-y-2">
                                         <Label htmlFor="nomorIdentitasJaminan">
                                             Nomor Identitas Jaminan Sosial
@@ -263,7 +267,7 @@ export function Section7({ form }: Section7Props) {
  * Fields: Akses layanan kesehatan, penyakit kronis
  */
 interface Section8Props {
-    form: FormApi<FormData, any>;
+    form: CommunityFormApi;
 }
 
 export function Section8({ form }: Section8Props) {
@@ -290,7 +294,7 @@ export function Section8({ form }: Section8Props) {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             {/* Akses Layanan Kesehatan Terakhir */}
                             <form.Field name="aksesLayananKesehatan">
-                                {(field: any) => (
+                                {(field) => (
                                     <div className="space-y-2">
                                         <Label htmlFor="aksesLayananKesehatan">
                                             Akses Layanan Kesehatan Terakhir
@@ -298,7 +302,9 @@ export function Section8({ form }: Section8Props) {
                                         <Select
                                             value={field.state.value || ""}
                                             onValueChange={(value) =>
-                                                field.handleChange(value as any)
+                                                field.handleChange(
+                                                    value as AksesLayananKesehatan,
+                                                )
                                             }
                                         >
                                             <SelectTrigger>
@@ -325,7 +331,7 @@ export function Section8({ form }: Section8Props) {
 
                             {/* Penyakit Kronis atau Kondisi Kesehatan Khusus */}
                             <form.Field name="adaPenyakitKronis">
-                                {(field: any) => (
+                                {(field) => (
                                     <div className="space-y-2">
                                         <Label>
                                             Penyakit Kronis atau Kondisi
@@ -370,7 +376,7 @@ export function Section8({ form }: Section8Props) {
                             {/* Detail Penyakit Kronis */}
                             {isPenyakitDetailEnabled && (
                                 <form.Field name="detailPenyakitKronis">
-                                    {(field: any) => (
+                                    {(field) => (
                                         <div className="space-y-2 md:col-span-2">
                                             <Label htmlFor="detailPenyakitKronis">
                                                 Detail Penyakit/Kondisi
@@ -403,7 +409,7 @@ export function Section8({ form }: Section8Props) {
  * Fields: Penyandang disabilitas, jenis disabilitas
  */
 interface Section9Props {
-    form: FormApi<FormData, any>;
+    form: CommunityFormApi;
 }
 
 export function Section9({ form }: Section9Props) {
@@ -431,7 +437,7 @@ export function Section9({ form }: Section9Props) {
                         <div className="grid grid-cols-1 gap-4">
                             {/* Apakah Anda Penyandang Disabilitas */}
                             <form.Field name="penyandangDisabilitas">
-                                {(field: any) => (
+                                {(field) => (
                                     <div className="space-y-2">
                                         <Label>
                                             Apakah Anda Penyandang Disabilitas?
@@ -475,7 +481,7 @@ export function Section9({ form }: Section9Props) {
                             {/* Jenis Disabilitas */}
                             {isDisabilitasDetailEnabled && (
                                 <form.Field name="jenisDisabilitas">
-                                    {(field: any) => (
+                                    {(field) => (
                                         <MultiInput
                                             label="Jenis Disabilitas"
                                             values={field.state.value || []}
@@ -500,7 +506,7 @@ export function Section9({ form }: Section9Props) {
  * Fields: Pernah diskriminasi, jenis, pelaku, lokasi, dilaporkan
  */
 interface Section10Props {
-    form: FormApi<FormData, any>;
+    form: CommunityFormApi;
 }
 
 export function Section10({ form }: Section10Props) {
@@ -523,12 +529,20 @@ export function Section10({ form }: Section10Props) {
                 {({ pernahDiskriminasi }) => {
                     const isDiskriminasiFieldsEnabled =
                         pernahDiskriminasi === "Pernah mengalami";
+                    const jenisOptions: JenisDiskriminasi[] = [
+                        "Fisik",
+                        "Ekonomi",
+                        "Verbal",
+                        "Seksual",
+                        "Psikologi",
+                        "Sosial",
+                    ];
 
                     return (
                         <div className="grid grid-cols-1 gap-4">
                             {/* Pernah Mengalami Diskriminasi atau Kekerasan */}
                             <form.Field name="pernahDiskriminasi">
-                                {(field: any) => (
+                                {(field) => (
                                     <div className="space-y-2">
                                         <Label htmlFor="pernahDiskriminasi">
                                             Pernah Mengalami Diskriminasi atau
@@ -537,7 +551,9 @@ export function Section10({ form }: Section10Props) {
                                         <Select
                                             value={field.state.value || ""}
                                             onValueChange={(value) =>
-                                                field.handleChange(value as any)
+                                                field.handleChange(
+                                                    value as PernahDiskriminasi,
+                                                )
                                             }
                                         >
                                             <SelectTrigger>
@@ -560,68 +576,65 @@ export function Section10({ form }: Section10Props) {
                             {isDiskriminasiFieldsEnabled && (
                                 <>
                                     <form.Field name="jenisDiskriminasi">
-                                        {(field: any) => (
+                                        {(field) => (
                                             <div className="space-y-2">
                                                 <Label>
                                                     Jenis Diskriminasi
                                                 </Label>
                                                 <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                                                    {[
-                                                        "Fisik",
-                                                        "Ekonomi",
-                                                        "Verbal",
-                                                        "Seksual",
-                                                        "Psikologi",
-                                                        "Sosial",
-                                                    ].map((jenis) => (
-                                                        <label
-                                                            key={jenis}
-                                                            className="flex items-center gap-2"
-                                                        >
-                                                            <input
-                                                                type="checkbox"
-                                                                checked={
-                                                                    field.state.value?.includes(
-                                                                        jenis as any,
-                                                                    ) || false
-                                                                }
-                                                                onChange={(
-                                                                    e,
-                                                                ) => {
-                                                                    const current =
-                                                                        field
-                                                                            .state
-                                                                            .value ||
-                                                                        [];
-                                                                    if (
-                                                                        e.target
-                                                                            .checked
-                                                                    ) {
-                                                                        field.handleChange(
-                                                                            [
-                                                                                ...current,
-                                                                                jenis as any,
-                                                                            ],
-                                                                        );
-                                                                    } else {
-                                                                        field.handleChange(
-                                                                            current.filter(
-                                                                                (
-                                                                                    v,
-                                                                                ) =>
-                                                                                    v !==
-                                                                                    jenis,
-                                                                            ),
-                                                                        );
+                                                    {jenisOptions.map(
+                                                        (jenis) => (
+                                                            <label
+                                                                key={jenis}
+                                                                className="flex items-center gap-2"
+                                                            >
+                                                                <input
+                                                                    type="checkbox"
+                                                                    checked={
+                                                                        field.state.value?.includes(
+                                                                            jenis,
+                                                                        ) ??
+                                                                        false
                                                                     }
-                                                                }}
-                                                                className="h-4 w-4"
-                                                            />
-                                                            <span className="text-sm">
-                                                                {jenis}
-                                                            </span>
-                                                        </label>
-                                                    ))}
+                                                                    onChange={(
+                                                                        e,
+                                                                    ) => {
+                                                                        const current =
+                                                                            field
+                                                                                .state
+                                                                                .value ??
+                                                                            [];
+                                                                        if (
+                                                                            e
+                                                                                .target
+                                                                                .checked
+                                                                        ) {
+                                                                            field.handleChange(
+                                                                                [
+                                                                                    ...current,
+                                                                                    jenis,
+                                                                                ],
+                                                                            );
+                                                                        } else {
+                                                                            field.handleChange(
+                                                                                current.filter(
+                                                                                    (
+                                                                                        value,
+                                                                                    ) =>
+                                                                                        value !==
+                                                                                        jenis,
+                                                                                ),
+                                                                            );
+                                                                        }
+                                                                    }}
+                                                                    className="h-4 w-4"
+                                                                />
+                                                                <span className="text-sm">
+                                                                    {jenis}
+                                                                </span>
+                                                            </label>
+                                                        ),
+                                                    )}
                                                 </div>
                                             </div>
                                         )}
@@ -629,7 +642,7 @@ export function Section10({ form }: Section10Props) {
 
                                     {/* Pelaku Diskriminasi/Kekerasan */}
                                     <form.Field name="pelakuDiskriminasi">
-                                        {(field: any) => (
+                                        {(field) => (
                                             <MultiInput
                                                 label="Pelaku Diskriminasi/Kekerasan"
                                                 values={field.state.value || []}
@@ -643,7 +656,7 @@ export function Section10({ form }: Section10Props) {
 
                                     {/* Lokasi Kejadian */}
                                     <form.Field name="lokasiKejadian">
-                                        {(field: any) => (
+                                        {(field) => (
                                             <MultiInput
                                                 label="Lokasi Kejadian"
                                                 values={field.state.value || []}
@@ -657,7 +670,7 @@ export function Section10({ form }: Section10Props) {
 
                                     {/* Apakah Diskriminasi/Kekerasan Telah Dilaporkan */}
                                     <form.Field name="diskriminasiDilaporkan">
-                                        {(field: any) => (
+                                        {(field) => (
                                             <div className="space-y-2">
                                                 <Label>
                                                     Apakah
@@ -718,7 +731,7 @@ export function Section10({ form }: Section10Props) {
  * Fields: Bantuan sosial, DTKS, bantuan lainnya, komunitas
  */
 interface Section11Props {
-    form: FormApi<FormData, any>;
+    form: CommunityFormApi;
 }
 
 export function Section11({ form }: Section11Props) {
@@ -736,7 +749,7 @@ export function Section11({ form }: Section11Props) {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {/* Mendapatkan Bantuan Sosial dari Pemerintah */}
                 <form.Field name="menerimaBantuanSosial">
-                    {(field: any) => (
+                    {(field) => (
                         <div className="space-y-2">
                             <Label>
                                 Mendapatkan Bantuan Sosial dari Pemerintah?
@@ -771,7 +784,7 @@ export function Section11({ form }: Section11Props) {
 
                 {/* Terdaftar dalam Data Terpadu Kesejahteraan Sosial (DTKS) */}
                 <form.Field name="terdaftarDTKS">
-                    {(field: any) => (
+                    {(field) => (
                         <div className="space-y-2">
                             <Label>
                                 Terdaftar dalam Data Terpadu Kesejahteraan
@@ -807,7 +820,7 @@ export function Section11({ form }: Section11Props) {
 
                 {/* Bantuan Sosial Lainnya yang Diterima */}
                 <form.Field name="bantuanSosialLainnya">
-                    {(field: any) => (
+                    {(field) => (
                         <div className="md:col-span-2">
                             <MultiInput
                                 label="Bantuan Sosial Lainnya yang Diterima (jika ada)"
@@ -823,7 +836,7 @@ export function Section11({ form }: Section11Props) {
 
                 {/* Kelompok Komunitas yang Diikuti */}
                 <form.Field name="kelompokKomunitas">
-                    {(field: any) => (
+                    {(field) => (
                         <div className="space-y-2 md:col-span-2">
                             <Label htmlFor="kelompokKomunitas">
                                 Kelompok Komunitas yang Diikuti

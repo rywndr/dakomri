@@ -3,7 +3,8 @@
 import { useState, useEffect, useRef } from "react";
 import { useForm } from "@tanstack/react-form";
 import { useRouter } from "next/navigation";
-import { ZodIssue } from "zod";
+import type { CommunityFormApi, FormData } from "@/types/form";
+
 import { formSubmissionSchema } from "@/lib/validations/form-validation";
 import { Button } from "@/components/ui/button";
 import {
@@ -135,7 +136,7 @@ export function FormClient() {
             terdaftarDTKS: undefined,
             bantuanSosialLainnya: [],
             kelompokKomunitas: "",
-        },
+        } as unknown as FormData,
         onSubmit: async ({ value }) => {
             // Check if user has already submitted
             if (submissionStatus.hasSubmitted) {
@@ -320,47 +321,47 @@ export function FormClient() {
                         className="space-y-8"
                     >
                         {/* Section 1: Data Pribadi */}
-                        <Section1 form={form} />
+                        <Section1 form={form as unknown as CommunityFormApi} />
                         <Separator />
 
                         {/* Section 2: Dokumen Kependudukan */}
-                        <Section2 form={form} />
+                        <Section2 form={form as unknown as CommunityFormApi} />
                         <Separator />
 
                         {/* Section 3: Alamat */}
-                        <Section3 form={form} />
+                        <Section3 form={form as unknown as CommunityFormApi} />
                         <Separator />
 
                         {/* Section 4: Kontak */}
-                        <Section4 form={form} />
+                        <Section4 form={form as unknown as CommunityFormApi} />
                         <Separator />
 
                         {/* Section 5: Pekerjaan & Ekonomi */}
-                        <Section5 form={form} />
+                        <Section5 form={form as unknown as CommunityFormApi} />
                         <Separator />
 
                         {/* Section 6: Pelatihan */}
-                        <Section6 form={form} />
+                        <Section6 form={form as unknown as CommunityFormApi} />
                         <Separator />
 
                         {/* Section 7: Jaminan Sosial */}
-                        <Section7 form={form} />
+                        <Section7 form={form as unknown as CommunityFormApi} />
                         <Separator />
 
                         {/* Section 8: Kesehatan */}
-                        <Section8 form={form} />
+                        <Section8 form={form as unknown as CommunityFormApi} />
                         <Separator />
 
                         {/* Section 9: Disabilitas */}
-                        <Section9 form={form} />
+                        <Section9 form={form as unknown as CommunityFormApi} />
                         <Separator />
 
                         {/* Section 10: Diskriminasi & Kekerasan */}
-                        <Section10 form={form} />
+                        <Section10 form={form as unknown as CommunityFormApi} />
                         <Separator />
 
                         {/* Section 11: Bantuan Sosial & Komunitas */}
-                        <Section11 form={form} />
+                        <Section11 form={form as unknown as CommunityFormApi} />
 
                         {/* Form Actions */}
                         <div className="flex flex-col sm:flex-row gap-4 pt-6">

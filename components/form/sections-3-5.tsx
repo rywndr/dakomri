@@ -1,8 +1,15 @@
 "use client";
 
-import { FormApi } from "@tanstack/react-form";
-import { FormData } from "@/types/form";
+import type {
+    CommunityFormApi,
+    StatusKependudukan,
+    StatusTempatTinggal,
+    StatusPerkawinan,
+    PendidikanTerakhir,
+    StatusPekerjaan,
+} from "@/types/form";
 import { Input } from "@/components/ui/input";
+
 import { Label } from "@/components/ui/label";
 import {
     Select,
@@ -14,7 +21,6 @@ import {
 import {
     section3Schema,
     section4Schema,
-    section5Schema,
 } from "@/lib/validations/form-validation";
 
 /**
@@ -22,7 +28,7 @@ import {
  * Fields: Alamat lengkap, Kelurahan, Kecamatan, Kabupaten, Kota, Status Kependudukan, Status Tempat Tinggal
  */
 interface Section3Props {
-    form: FormApi<FormData, any>;
+    form: CommunityFormApi;
 }
 
 export function Section3({ form }: Section3Props) {
@@ -53,7 +59,7 @@ export function Section3({ form }: Section3Props) {
                         },
                     }}
                 >
-                    {(field: any) => (
+                    {(field) => (
                         <div className="space-y-2">
                             <Label htmlFor="alamatLengkap">
                                 Alamat Lengkap (Jalan, Nomor, RT/RW){" "}
@@ -85,7 +91,7 @@ export function Section3({ form }: Section3Props) {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {/* Kelurahan */}
                     <form.Field name="kelurahan">
-                        {(field: any) => (
+                        {(field) => (
                             <div className="space-y-2">
                                 <Label htmlFor="kelurahan">
                                     Kelurahan Domisili
@@ -104,7 +110,7 @@ export function Section3({ form }: Section3Props) {
 
                     {/* Kecamatan */}
                     <form.Field name="kecamatan">
-                        {(field: any) => (
+                        {(field) => (
                             <div className="space-y-2">
                                 <Label htmlFor="kecamatan">
                                     Kecamatan Domisili
@@ -123,7 +129,7 @@ export function Section3({ form }: Section3Props) {
 
                     {/* Kabupaten */}
                     <form.Field name="kabupaten">
-                        {(field: any) => (
+                        {(field) => (
                             <div className="space-y-2">
                                 <Label htmlFor="kabupaten">
                                     Kabupaten Domisili
@@ -153,7 +159,7 @@ export function Section3({ form }: Section3Props) {
                             },
                         }}
                     >
-                        {(field: any) => (
+                        {(field) => (
                             <div className="space-y-2">
                                 <Label htmlFor="kota">
                                     Kota{" "}
@@ -184,7 +190,7 @@ export function Section3({ form }: Section3Props) {
 
                     {/* Status Kependudukan */}
                     <form.Field name="statusKependudukan">
-                        {(field: any) => (
+                        {(field) => (
                             <div className="space-y-2">
                                 <Label htmlFor="statusKependudukan">
                                     Status Kependudukan
@@ -192,7 +198,9 @@ export function Section3({ form }: Section3Props) {
                                 <Select
                                     value={field.state.value || ""}
                                     onValueChange={(value) =>
-                                        field.handleChange(value as any)
+                                        field.handleChange(
+                                            value as StatusKependudukan,
+                                        )
                                     }
                                 >
                                     <SelectTrigger>
@@ -213,7 +221,7 @@ export function Section3({ form }: Section3Props) {
 
                     {/* Status Tempat Tinggal */}
                     <form.Field name="statusTempatTinggal">
-                        {(field: any) => (
+                        {(field) => (
                             <div className="space-y-2">
                                 <Label htmlFor="statusTempatTinggal">
                                     Status Tempat Tinggal
@@ -221,7 +229,9 @@ export function Section3({ form }: Section3Props) {
                                 <Select
                                     value={field.state.value || ""}
                                     onValueChange={(value) =>
-                                        field.handleChange(value as any)
+                                        field.handleChange(
+                                            value as StatusTempatTinggal,
+                                        )
                                     }
                                 >
                                     <SelectTrigger>
@@ -253,7 +263,7 @@ export function Section3({ form }: Section3Props) {
  * Fields: Kontak yang bisa dihubungi
  */
 interface Section4Props {
-    form: FormApi<FormData, any>;
+    form: CommunityFormApi;
 }
 
 export function Section4({ form }: Section4Props) {
@@ -284,7 +294,7 @@ export function Section4({ form }: Section4Props) {
                         },
                     }}
                 >
-                    {(field: any) => (
+                    {(field) => (
                         <div className="space-y-2">
                             <Label htmlFor="kontakTelp">
                                 Kontak yang bisa dihubungi{" "}
@@ -325,7 +335,7 @@ export function Section4({ form }: Section4Props) {
  * Fields: Status Perkawinan, Pendidikan, Status Pekerjaan, Jenis Pekerjaan, Pendapatan, Usaha
  */
 interface Section5Props {
-    form: FormApi<FormData, any>;
+    form: CommunityFormApi;
 }
 
 export function Section5({ form }: Section5Props) {
@@ -355,7 +365,7 @@ export function Section5({ form }: Section5Props) {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             {/* Status Perkawinan */}
                             <form.Field name="statusPerkawinan">
-                                {(field: any) => (
+                                {(field) => (
                                     <div className="space-y-2">
                                         <Label htmlFor="statusPerkawinan">
                                             Status Perkawinan
@@ -363,7 +373,9 @@ export function Section5({ form }: Section5Props) {
                                         <Select
                                             value={field.state.value || ""}
                                             onValueChange={(value) =>
-                                                field.handleChange(value as any)
+                                                field.handleChange(
+                                                    value as StatusPerkawinan,
+                                                )
                                             }
                                         >
                                             <SelectTrigger>
@@ -387,7 +399,7 @@ export function Section5({ form }: Section5Props) {
 
                             {/* Pendidikan Terakhir */}
                             <form.Field name="pendidikanTerakhir">
-                                {(field: any) => (
+                                {(field) => (
                                     <div className="space-y-2">
                                         <Label htmlFor="pendidikanTerakhir">
                                             Pendidikan Terakhir
@@ -395,7 +407,9 @@ export function Section5({ form }: Section5Props) {
                                         <Select
                                             value={field.state.value || ""}
                                             onValueChange={(value) =>
-                                                field.handleChange(value as any)
+                                                field.handleChange(
+                                                    value as PendidikanTerakhir,
+                                                )
                                             }
                                         >
                                             <SelectTrigger>
@@ -425,7 +439,7 @@ export function Section5({ form }: Section5Props) {
 
                             {/* Status Pekerjaan */}
                             <form.Field name="statusPekerjaan">
-                                {(field: any) => (
+                                {(field) => (
                                     <div className="space-y-2">
                                         <Label htmlFor="statusPekerjaan">
                                             Status Pekerjaan
@@ -433,7 +447,9 @@ export function Section5({ form }: Section5Props) {
                                         <Select
                                             value={field.state.value || ""}
                                             onValueChange={(value) =>
-                                                field.handleChange(value as any)
+                                                field.handleChange(
+                                                    value as StatusPekerjaan,
+                                                )
                                             }
                                         >
                                             <SelectTrigger>
@@ -457,7 +473,7 @@ export function Section5({ form }: Section5Props) {
 
                             {/* Jenis Pekerjaan */}
                             <form.Field name="jenisPekerjaan">
-                                {(field: any) => (
+                                {(field) => (
                                     <div className="space-y-2">
                                         <Label htmlFor="jenisPekerjaan">
                                             Jenis Pekerjaan
@@ -476,7 +492,7 @@ export function Section5({ form }: Section5Props) {
                                         {!isJenisPekerjaanEnabled && (
                                             <p className="text-xs text-muted-foreground">
                                                 Hanya aktif jika status
-                                                pekerjaan "Bekerja"
+                                                pekerjaan &apos;Bekerja&apos;
                                             </p>
                                         )}
                                     </div>
@@ -485,7 +501,7 @@ export function Section5({ form }: Section5Props) {
 
                             {/* Pendapatan Bulanan */}
                             <form.Field name="pendapatanBulanan">
-                                {(field: any) => (
+                                {(field) => (
                                     <div className="space-y-2">
                                         <Label htmlFor="pendapatanBulanan">
                                             Pendapatan Bulanan (Rp)
@@ -510,7 +526,7 @@ export function Section5({ form }: Section5Props) {
 
                             {/* Memiliki Usaha Sendiri */}
                             <form.Field name="memilikiUsaha">
-                                {(field: any) => (
+                                {(field) => (
                                     <div className="space-y-2">
                                         <Label>Memiliki Usaha Sendiri?</Label>
                                         <div className="flex gap-4">
@@ -551,7 +567,7 @@ export function Section5({ form }: Section5Props) {
 
                             {/* Detail Usaha */}
                             <form.Field name="detailUsaha">
-                                {(field: any) => (
+                                {(field) => (
                                     <div className="space-y-2">
                                         <Label htmlFor="detailUsaha">
                                             Detail Usaha

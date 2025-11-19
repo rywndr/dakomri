@@ -16,6 +16,20 @@ import { ArrowLeft, Save } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
 import { FormSubmission } from "@/drizzle/schema";
+import type {
+    FormData,
+    CommunityFormApi,
+    JenisKelamin,
+    StatusKepemilikanEKTP,
+    StatusKependudukan,
+    StatusTempatTinggal,
+    StatusPerkawinan,
+    PendidikanTerakhir,
+    StatusPekerjaan,
+    AksesLayananKesehatan,
+    PernahDiskriminasi,
+    JenisDiskriminasi,
+} from "@/types/form";
 
 import { Section1 } from "@/components/form/section-1";
 import { Section2 } from "@/components/form/section-2";
@@ -54,77 +68,102 @@ export function SubmissionEditClient({
         .filter(Boolean)
         .join(" ");
 
+    // Helper to convert null to undefined
+    const toUndefined = <T,>(value: T | null | undefined): T | undefined =>
+        value === null ? undefined : value;
+
+    const defaultValues: FormData = {
+        // Section 1: Data Pribadi
+        namaDepan: initialData.namaDepan || "",
+        namaBelakang: toUndefined(initialData.namaBelakang),
+        namaAlias: toUndefined(initialData.namaAlias),
+        tempatLahir: toUndefined(initialData.tempatLahir),
+        tanggalLahir: toUndefined(initialData.tanggalLahir),
+        usia: toUndefined(initialData.usia),
+        jenisKelamin: toUndefined(initialData.jenisKelamin) as
+            | JenisKelamin
+            | undefined,
+        identitasGender: toUndefined(initialData.identitasGender),
+
+        // Section 2: Dokumen Kependudukan
+        nik: initialData.nik || "",
+        nomorKK: initialData.nomorKK || "",
+        statusKepemilikanEKTP: (initialData.statusKepemilikanEKTP ||
+            "Memiliki") as StatusKepemilikanEKTP,
+
+        // Section 3: Alamat
+        alamatLengkap: initialData.alamatLengkap || "",
+        kelurahan: toUndefined(initialData.kelurahan),
+        kecamatan: toUndefined(initialData.kecamatan),
+        kabupaten: toUndefined(initialData.kabupaten),
+        kota: initialData.kota || "",
+        statusKependudukan: toUndefined(initialData.statusKependudukan) as
+            | StatusKependudukan
+            | undefined,
+        statusTempatTinggal: toUndefined(initialData.statusTempatTinggal) as
+            | StatusTempatTinggal
+            | undefined,
+
+        // Section 4: Kontak
+        kontakTelp: initialData.kontakTelp || "",
+
+        // Section 5: Pekerjaan & Ekonomi
+        statusPerkawinan: initialData.statusPerkawinan as
+            | StatusPerkawinan
+            | undefined,
+        pendidikanTerakhir: initialData.pendidikanTerakhir as
+            | PendidikanTerakhir
+            | undefined,
+        statusPekerjaan: toUndefined(initialData.statusPekerjaan) as
+            | StatusPekerjaan
+            | undefined,
+        jenisPekerjaan: toUndefined(initialData.jenisPekerjaan),
+        pendapatanBulanan: toUndefined(initialData.pendapatanBulanan),
+        memilikiUsaha: toUndefined(initialData.memilikiUsaha),
+        detailUsaha: toUndefined(initialData.detailUsaha),
+
+        // Section 6: Pelatihan
+        pernahPelatihanKeterampilan: toUndefined(
+            initialData.pernahPelatihanKeterampilan,
+        ),
+        jenisPelatihanDiikuti: initialData.jenisPelatihanDiikuti || [],
+        penyelenggaraPelatihan: initialData.penyelenggaraPelatihan || [],
+        pelatihanDiinginkan: initialData.pelatihanDiinginkan || [],
+
+        // Section 7: Jaminan Sosial
+        jenisJaminanSosial: toUndefined(initialData.jenisJaminanSosial),
+        nomorIdentitasJaminan: toUndefined(initialData.nomorIdentitasJaminan),
+
+        // Section 8: Kesehatan
+        aksesLayananKesehatan: toUndefined(
+            initialData.aksesLayananKesehatan,
+        ) as AksesLayananKesehatan | undefined,
+        adaPenyakitKronis: toUndefined(initialData.adaPenyakitKronis),
+        detailPenyakitKronis: toUndefined(initialData.detailPenyakitKronis),
+
+        // Section 9: Disabilitas
+        penyandangDisabilitas: toUndefined(initialData.penyandangDisabilitas),
+        jenisDisabilitas: initialData.jenisDisabilitas || [],
+
+        // Section 10: Diskriminasi & Kekerasan
+        pernahDiskriminasi: toUndefined(initialData.pernahDiskriminasi) as
+            | PernahDiskriminasi
+            | undefined,
+        jenisDiskriminasi: (initialData.jenisDiskriminasi ||
+            []) as JenisDiskriminasi[],
+        pelakuDiskriminasi: initialData.pelakuDiskriminasi || [],
+        lokasiKejadian: initialData.lokasiKejadian || [],
+        diskriminasiDilaporkan: toUndefined(initialData.diskriminasiDilaporkan),
+
+        // Section 11: Bantuan Sosial & Komunitas
+        menerimaBantuanSosial: toUndefined(initialData.menerimaBantuanSosial),
+        terdaftarDTKS: toUndefined(initialData.terdaftarDTKS),
+        bantuanSosialLainnya: initialData.bantuanSosialLainnya || [],
+        kelompokKomunitas: toUndefined(initialData.kelompokKomunitas),
+    };
+
     const form = useForm({
-        defaultValues: {
-            // Section 1: Data Pribadi
-            namaDepan: initialData.namaDepan || "",
-            namaBelakang: initialData.namaBelakang || "",
-            namaAlias: initialData.namaAlias || "",
-            tempatLahir: initialData.tempatLahir || "",
-            tanggalLahir: initialData.tanggalLahir || undefined,
-            usia: initialData.usia || undefined,
-            jenisKelamin: initialData.jenisKelamin || "",
-            identitasGender: initialData.identitasGender || "",
-
-            // Section 2: Dokumen Kependudukan
-            nik: initialData.nik || "",
-            nomorKK: initialData.nomorKK || "",
-            statusKepemilikanEKTP: initialData.statusKepemilikanEKTP || "",
-
-            // Section 3: Alamat
-            alamatLengkap: initialData.alamatLengkap || "",
-            kelurahan: initialData.kelurahan || "",
-            kecamatan: initialData.kecamatan || "",
-            kabupaten: initialData.kabupaten || "",
-            kota: initialData.kota || "",
-            statusKependudukan: initialData.statusKependudukan || "",
-            statusTempatTinggal: initialData.statusTempatTinggal || "",
-
-            // Section 4: Kontak
-            kontakTelp: initialData.kontakTelp || "",
-
-            // Section 5: Pekerjaan & Ekonomi
-            statusPerkawinan: initialData.statusPerkawinan || "",
-            pendidikanTerakhir: initialData.pendidikanTerakhir || "",
-            statusPekerjaan: initialData.statusPekerjaan || "",
-            jenisPekerjaan: initialData.jenisPekerjaan || "",
-            pendapatanBulanan: initialData.pendapatanBulanan || undefined,
-            memilikiUsaha: initialData.memilikiUsaha || false,
-            detailUsaha: initialData.detailUsaha || "",
-
-            // Section 6: Pelatihan
-            pernahPelatihanKeterampilan:
-                initialData.pernahPelatihanKeterampilan || false,
-            jenisPelatihanDiikuti: initialData.jenisPelatihanDiikuti || [],
-            penyelenggaraPelatihan: initialData.penyelenggaraPelatihan || [],
-            pelatihanDiinginkan: initialData.pelatihanDiinginkan || [],
-
-            // Section 7: Jaminan Sosial
-            jenisJaminanSosial: initialData.jenisJaminanSosial || "",
-            nomorIdentitasJaminan: initialData.nomorIdentitasJaminan || "",
-
-            // Section 8: Kesehatan
-            aksesLayananKesehatan: initialData.aksesLayananKesehatan || "",
-            adaPenyakitKronis: initialData.adaPenyakitKronis || false,
-            detailPenyakitKronis: initialData.detailPenyakitKronis || "",
-
-            // Section 9: Disabilitas
-            penyandangDisabilitas: initialData.penyandangDisabilitas || false,
-            jenisDisabilitas: initialData.jenisDisabilitas || [],
-
-            // Section 10: Diskriminasi & Kekerasan
-            pernahDiskriminasi: initialData.pernahDiskriminasi || "",
-            jenisDiskriminasi: initialData.jenisDiskriminasi || [],
-            pelakuDiskriminasi: initialData.pelakuDiskriminasi || [],
-            lokasiKejadian: initialData.lokasiKejadian || [],
-            diskriminasiDilaporkan: initialData.diskriminasiDilaporkan || false,
-
-            // Section 11: Bantuan Sosial & Komunitas
-            menerimaBantuanSosial: initialData.menerimaBantuanSosial || false,
-            terdaftarDTKS: initialData.terdaftarDTKS || false,
-            bantuanSosialLainnya: initialData.bantuanSosialLainnya || [],
-            kelompokKomunitas: initialData.kelompokKomunitas || "",
-        },
+        defaultValues,
         onSubmit: async ({ value }) => {
             setIsLoading(true);
             try {
@@ -238,7 +277,7 @@ export function SubmissionEditClient({
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <Section1 form={form} />
+                        <Section1 form={form as unknown as CommunityFormApi} />
                     </CardContent>
                 </Card>
 
@@ -251,7 +290,7 @@ export function SubmissionEditClient({
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <Section2 form={form} />
+                        <Section2 form={form as unknown as CommunityFormApi} />
                     </CardContent>
                 </Card>
 
@@ -267,9 +306,15 @@ export function SubmissionEditClient({
                     </CardHeader>
                     <CardContent>
                         <div className="space-y-6">
-                            <Section3 form={form} />
-                            <Section4 form={form} />
-                            <Section5 form={form} />
+                            <Section3
+                                form={form as unknown as CommunityFormApi}
+                            />
+                            <Section4
+                                form={form as unknown as CommunityFormApi}
+                            />
+                            <Section5
+                                form={form as unknown as CommunityFormApi}
+                            />
                         </div>
                     </CardContent>
                 </Card>
@@ -286,12 +331,24 @@ export function SubmissionEditClient({
                     </CardHeader>
                     <CardContent>
                         <div className="space-y-6">
-                            <Section6 form={form} />
-                            <Section7 form={form} />
-                            <Section8 form={form} />
-                            <Section9 form={form} />
-                            <Section10 form={form} />
-                            <Section11 form={form} />
+                            <Section6
+                                form={form as unknown as CommunityFormApi}
+                            />
+                            <Section7
+                                form={form as unknown as CommunityFormApi}
+                            />
+                            <Section8
+                                form={form as unknown as CommunityFormApi}
+                            />
+                            <Section9
+                                form={form as unknown as CommunityFormApi}
+                            />
+                            <Section10
+                                form={form as unknown as CommunityFormApi}
+                            />
+                            <Section11
+                                form={form as unknown as CommunityFormApi}
+                            />
                         </div>
                     </CardContent>
                 </Card>

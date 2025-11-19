@@ -1,7 +1,6 @@
 "use client";
 
-import { FormApi } from "@tanstack/react-form";
-import { FormData } from "@/types/form";
+import type { CommunityFormApi, StatusKepemilikanEKTP } from "@/types/form";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -18,7 +17,7 @@ import { section2Schema } from "@/lib/validations/form-validation";
  * Fields: NIK, Nomor KK, Status Kepemilikan E-KTP
  */
 interface Section2Props {
-    form: FormApi<FormData, any>;
+    form: CommunityFormApi;
 }
 
 export function Section2({ form }: Section2Props) {
@@ -38,7 +37,7 @@ export function Section2({ form }: Section2Props) {
                 <form.Field
                     name="nik"
                     validators={{
-                        onChange: ({ value }: { value: string }) => {
+                        onChange: ({ value }) => {
                             const result =
                                 section2Schema.shape.nik.safeParse(value);
                             return result.success
@@ -47,7 +46,7 @@ export function Section2({ form }: Section2Props) {
                         },
                     }}
                 >
-                    {(field: any) => (
+                    {(field) => (
                         <div className="space-y-2">
                             <Label htmlFor="nik">
                                 NIK (Nomor Induk Kependudukan){" "}
@@ -84,7 +83,7 @@ export function Section2({ form }: Section2Props) {
                 <form.Field
                     name="nomorKK"
                     validators={{
-                        onChange: ({ value }: { value: string }) => {
+                        onChange: ({ value }) => {
                             const result =
                                 section2Schema.shape.nomorKK.safeParse(value);
                             return result.success
@@ -93,7 +92,7 @@ export function Section2({ form }: Section2Props) {
                         },
                     }}
                 >
-                    {(field: any) => (
+                    {(field) => (
                         <div className="space-y-2">
                             <Label htmlFor="nomorKK">
                                 Nomor Kartu Keluarga{" "}
@@ -130,7 +129,7 @@ export function Section2({ form }: Section2Props) {
                 <form.Field
                     name="statusKepemilikanEKTP"
                     validators={{
-                        onChange: ({ value }: { value: any }) => {
+                        onChange: ({ value }) => {
                             const result =
                                 section2Schema.shape.statusKepemilikanEKTP.safeParse(
                                     value,
@@ -141,7 +140,7 @@ export function Section2({ form }: Section2Props) {
                         },
                     }}
                 >
-                    {(field: any) => (
+                    {(field) => (
                         <div className="space-y-2">
                             <Label htmlFor="statusKepemilikanEKTP">
                                 Status Kepemilikan E-KTP{" "}
@@ -150,7 +149,9 @@ export function Section2({ form }: Section2Props) {
                             <Select
                                 value={field.state.value || ""}
                                 onValueChange={(value) =>
-                                    field.handleChange(value as any)
+                                    field.handleChange(
+                                        value as StatusKepemilikanEKTP,
+                                    )
                                 }
                             >
                                 <SelectTrigger

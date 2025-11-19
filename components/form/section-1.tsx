@@ -1,7 +1,6 @@
 "use client";
 
-import { FormApi } from "@tanstack/react-form";
-import { FormData } from "@/types/form";
+import type { CommunityFormApi } from "@/types/form";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -16,8 +15,9 @@ import {
  * Section 1: Data Pribadi
  * Fields: nama depan, nama belakang, alias, tempat lahir, tanggal lahir, usia, jenis kelamin, identitas gender
  */
+
 interface Section1Props {
-    form: FormApi<FormData, any>;
+    form: CommunityFormApi;
 }
 
 export function Section1({ form }: Section1Props) {
@@ -41,7 +41,7 @@ export function Section1({ form }: Section1Props) {
                             !value ? "Nama depan wajib diisi" : undefined,
                     }}
                 >
-                    {(field: any) => (
+                    {(field) => (
                         <div className="space-y-2">
                             <Label htmlFor="namaDepan">
                                 Nama Depan{" "}
@@ -72,7 +72,7 @@ export function Section1({ form }: Section1Props) {
 
                 {/* Nama Belakang */}
                 <form.Field name="namaBelakang">
-                    {(field: any) => (
+                    {(field) => (
                         <div className="space-y-2">
                             <Label htmlFor="namaBelakang">Nama Belakang</Label>
                             <Input
@@ -89,7 +89,7 @@ export function Section1({ form }: Section1Props) {
 
                 {/* Nama Alias */}
                 <form.Field name="namaAlias">
-                    {(field: any) => (
+                    {(field) => (
                         <div className="space-y-2">
                             <Label htmlFor="namaAlias">
                                 Nama Alias/Panggilan Komunitas
@@ -108,7 +108,7 @@ export function Section1({ form }: Section1Props) {
 
                 {/* Tempat Lahir */}
                 <form.Field name="tempatLahir">
-                    {(field: any) => (
+                    {(field) => (
                         <div className="space-y-2">
                             <Label htmlFor="tempatLahir">Tempat Lahir</Label>
                             <Input
@@ -125,7 +125,7 @@ export function Section1({ form }: Section1Props) {
 
                 {/* Tanggal Lahir */}
                 <form.Field name="tanggalLahir">
-                    {(field: any) => {
+                    {(field) => {
                         const handleDateChange = (dateString: string) => {
                             if (dateString) {
                                 const date = new Date(dateString);
@@ -175,7 +175,7 @@ export function Section1({ form }: Section1Props) {
 
                 {/* Usia */}
                 <form.Field name="usia">
-                    {(field: any) => {
+                    {(field) => {
                         const handleAgeChange = (age: number) => {
                             field.handleChange(age);
                             // Estimasi tanggal lahir jika belum diisi
@@ -219,7 +219,7 @@ export function Section1({ form }: Section1Props) {
 
                 {/* Jenis Kelamin */}
                 <form.Field name="jenisKelamin">
-                    {(field: any) => (
+                    {(field) => (
                         <div className="space-y-2">
                             <Label htmlFor="jenisKelamin">Jenis Kelamin</Label>
                             <Select
@@ -246,7 +246,7 @@ export function Section1({ form }: Section1Props) {
 
                 {/* Identitas Gender */}
                 <form.Field name="identitasGender">
-                    {(field: any) => {
+                    {(field) => {
                         const isCustom =
                             field.state.value !== "None" &&
                             field.state.value !== "Waria";
