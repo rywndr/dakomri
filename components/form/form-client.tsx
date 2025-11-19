@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import type { CommunityFormApi, FormData } from "@/types/form";
 
 import { formSubmissionSchema } from "@/lib/validations/form-validation";
+import { validateAndScroll } from "@/lib/form/validation-utils";
 import { Button } from "@/components/ui/button";
 import {
     Card,
@@ -29,6 +30,7 @@ import {
     Section10,
     Section11,
 } from "@/components/form/sections-6-11";
+
 interface SubmissionStatus {
     hasSubmitted: boolean;
     status: string | null;
@@ -44,9 +46,7 @@ export function FormClient() {
     const [isCheckingStatus, setIsCheckingStatus] = useState(true);
     const formRef = useRef<HTMLFormElement>(null);
 
-    /**
-     * Check if user has already submitted the form
-     */
+    // Cek status submission user
     useEffect(() => {
         const checkSubmissionStatus = async () => {
             try {
@@ -66,7 +66,7 @@ export function FormClient() {
         checkSubmissionStatus();
     }, []);
 
-    // Initialize TanStack Form
+    // Inisialisasi TanStack Form
     const form = useForm({
         defaultValues: {
             // Section 1: Data Pribadi
@@ -138,7 +138,8 @@ export function FormClient() {
             kelompokKomunitas: "",
         } as unknown as FormData,
         onSubmit: async ({ value }) => {
-            // Check if user has already submitted
+            console.log("Form disubmit dengan nilai:", value);
+            // Cek apakah user sudah pernah submit
             if (submissionStatus.hasSubmitted) {
                 toast.error("Anda sudah pernah submit formulir", {
                     description:
@@ -149,16 +150,11 @@ export function FormClient() {
 
             setIsLoading(true);
             try {
-                // Validasi form w/ Zod
+                // Validasi form dengan Zod
                 const result = formSubmissionSchema.safeParse(value);
 
                 if (!result.success) {
-                    const errors = result.error.errors;
-                    toast.error("Validasi gagal", {
-                        description: `Ada ${errors.length} kesalahan dalam form. Silakan periksa kembali.`,
-                    });
-                    console.error("Validation errors:", errors);
-
+                    console.error("Error validasi Zod:", result.error.errors);
                     return;
                 }
 
@@ -199,7 +195,7 @@ export function FormClient() {
         },
     });
 
-    // Show loading skeleton while checking status
+    // Tampilkan skeleton saat cek status
     if (isCheckingStatus) {
         return (
             <div className="container mx-auto py-8 px-4 max-w-5xl">
@@ -209,7 +205,7 @@ export function FormClient() {
                         <Skeleton className="h-4 w-full" />
                     </CardHeader>
                     <CardContent className="space-y-8">
-                        {/* Section skeleton */}
+                        {/* Skeleton section */}
                         {[1, 2, 3, 4, 5, 6].map((section) => (
                             <div key={section} className="space-y-6">
                                 <div>
@@ -237,11 +233,9 @@ export function FormClient() {
                                 {section < 6 && <Separator />}
                             </div>
                         ))}
-                        {/* Action buttons skeleton */}
                         <div className="flex flex-col sm:flex-row gap-4 pt-6">
                             <Skeleton className="h-10 flex-1" />
                         </div>
-                        {/* Info note skeleton */}
                         <Skeleton className="h-16 w-full" />
                     </CardContent>
                 </Card>
@@ -249,7 +243,7 @@ export function FormClient() {
         );
     }
 
-    // Show message if user has already submitted
+    // Tampilkan pesan jika user sudah submit
     if (submissionStatus.hasSubmitted) {
         return (
             <div className="container mx-auto py-8 px-4 max-w-5xl">
@@ -316,6 +310,17 @@ export function FormClient() {
                         onSubmit={(e) => {
                             e.preventDefault();
                             e.stopPropagation();
+
+                            // Validasi dengan Zod sebelum submit
+                            const currentValues = form.state.values;
+                            const isValid = validateAndScroll(
+                                currentValues,
+                                formSubmissionSchema,
+                            );
+
+                            if (!isValid) return;
+
+                            // Jika validasi sukses, submit form
                             form.handleSubmit();
                         }}
                         className="space-y-8"
@@ -363,7 +368,7 @@ export function FormClient() {
                         {/* Section 11: Bantuan Sosial & Komunitas */}
                         <Section11 form={form as unknown as CommunityFormApi} />
 
-                        {/* Form Actions */}
+                        {/* Tombol Aksi */}
                         <div className="flex flex-col sm:flex-row gap-4 pt-6">
                             <Button
                                 type="submit"
@@ -381,7 +386,7 @@ export function FormClient() {
                             </Button>
                         </div>
 
-                        {/* Info Note */}
+                        {/* Catatan Info */}
                         <div className="bg-muted p-4 rounded-lg">
                             <p className="text-sm text-muted-foreground">
                                 <span className="text-destructive">*</span>{" "}

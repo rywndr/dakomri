@@ -31,11 +31,6 @@ interface UserMenuProps {
     session: Session | null;
 }
 
-interface SubmissionStatus {
-    hasSubmitted: boolean;
-    status: string | null;
-}
-
 export function UserMenu({ session }: UserMenuProps) {
     const router = useRouter();
 

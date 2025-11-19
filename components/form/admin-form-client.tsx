@@ -5,6 +5,7 @@ import { useForm } from "@tanstack/react-form";
 import { useRouter } from "next/navigation";
 import type { CommunityFormApi, FormData } from "@/types/form";
 import { formSubmissionSchema } from "@/lib/validations/form-validation";
+import { validateAndScroll } from "@/lib/form/validation-utils";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import {
@@ -110,18 +111,14 @@ export function AdminFormClient({ onBack }: AdminFormClientProps = {}) {
             kelompokKomunitas: "",
         } as unknown as FormData,
         onSubmit: async ({ value }) => {
+            console.log("Form disubmit dengan nilai:", value);
             setIsLoading(true);
             try {
-                // Validasi form w/ Zod
+                // Validasi form dengan Zod
                 const result = formSubmissionSchema.safeParse(value);
 
                 if (!result.success) {
-                    const errors = result.error.errors;
-                    toast.error("Validasi gagal", {
-                        description: `Ada ${errors.length} kesalahan dalam form. Silakan periksa kembali.`,
-                    });
-                    console.error("Validation errors:", errors);
-
+                    console.error("Error validasi Zod:", result.error.errors);
                     return;
                 }
 
@@ -204,6 +201,16 @@ export function AdminFormClient({ onBack }: AdminFormClientProps = {}) {
                         onSubmit={(e) => {
                             e.preventDefault();
                             e.stopPropagation();
+
+                            // Validasi dengan Zod sebelum submit
+                            const currentValues = form.state.values;
+                            const isValid = validateAndScroll(
+                                currentValues,
+                                formSubmissionSchema,
+                            );
+
+                            if (!isValid) return;
+
                             form.handleSubmit();
                         }}
                         className="space-y-8"
@@ -251,7 +258,7 @@ export function AdminFormClient({ onBack }: AdminFormClientProps = {}) {
                         {/* Section 11: Bantuan Sosial & Komunitas */}
                         <Section11 form={form as unknown as CommunityFormApi} />
 
-                        {/* Form Actions */}
+                        {/* Tombol Aksi */}
                         <div className="flex flex-col sm:flex-row gap-4 pt-6">
                             <Button
                                 type="button"
@@ -278,7 +285,7 @@ export function AdminFormClient({ onBack }: AdminFormClientProps = {}) {
                             </Button>
                         </div>
 
-                        {/* Info Note */}
+                        {/* Info */}
                         <div className="bg-muted p-4 rounded-lg">
                             <p className="text-sm text-muted-foreground">
                                 <span className="text-destructive">*</span>{" "}

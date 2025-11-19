@@ -57,7 +57,7 @@ export function SignUpForm() {
                 }
 
                 toast.success("Registrasi berhasil", {
-                    description: "Anda akan diarahkan ke dashboard",
+                    description: "Anda akan diarahkan ke home page",
                 });
 
                 router.push("/");

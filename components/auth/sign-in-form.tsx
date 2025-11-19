@@ -42,7 +42,7 @@ export function SignInForm() {
                 }
 
                 toast.success("Login berhasil", {
-                    description: "Anda akan diarahkan ke dashboard",
+                    description: "Anda akan diarahkan ke home page",
                 });
 
                 router.push("/");

@@ -9,7 +9,7 @@ import {
 import { user } from "./auth-schema";
 
 /**
- * Schema untuk data formulir transgender/gay
+ * Schema untuk data formulir
  * Link ke user bersifat opsional (admin bisa input manual)
  */
 export const formSubmission = pgTable("form_submission", {
