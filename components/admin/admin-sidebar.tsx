@@ -9,6 +9,7 @@ import {
     LayoutDashboard,
     ChevronRight,
     FilePlus,
+    ActivitySquare,
 } from "lucide-react";
 import {
     Sidebar,
@@ -47,6 +48,12 @@ const navItems = [
         title: "Pengguna",
         href: "/admin/pengguna",
         icon: UserCog,
+        badge: null,
+    },
+    {
+        title: "Kegiatan",
+        href: "/admin/kegiatan",
+        icon: ActivitySquare,
         badge: null,
     },
 ];
