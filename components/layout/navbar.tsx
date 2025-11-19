@@ -10,6 +10,7 @@ import {
     navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu";
 import { UserMenu } from "./user-menu";
+import Logo from "@/public/pkbi.png";
 
 export async function Navbar() {
     const session = await auth.api.getSession({
@@ -19,22 +20,25 @@ export async function Navbar() {
     return (
         <nav className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60">
             <div className="container mx-auto flex h-16 items-center justify-between px-4">
-                <div className="flex items-center gap-2">
-                    <Link
-                        href="/"
-                        className="flex items-center font-bold text-lg hover:opacity-80 transition-opacity"
-                    >
-                        <div className="size-18 relative">
-                            <Image
-                                src="/pkbi.svg"
-                                alt="PKBI Logo"
-                                fill
-                                className="object-contain"
-                            />
-                        </div>
-                        <span>DAKOMRI</span>
-                    </Link>
-                </div>
+                <Link
+                    href="/"
+                    className="flex items-center gap-3 font-bold text-lg hover:opacity-80 transition-opacity"
+                >
+                    <Image
+                        src={Logo}
+                        alt="PKBI Logo"
+                        width={38}
+                        height={38}
+                        className="object-contain"
+                    />
+
+                    <span className="relative">
+                        DAKOMRI
+                        <span className="absolute -top-1 -right-3 text-[0.65rem]">
+                            ©
+                        </span>
+                    </span>
+                </Link>
 
                 {/* Nav links */}
                 <NavigationMenu className="hidden md:flex">
