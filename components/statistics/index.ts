@@ -1,0 +1,12 @@
+export { KPICard } from "./kpi-card";
+export { BarChartComponent } from "./bar-chart";
+export { PieChartComponent } from "./pie-chart";
+export { DonutChartComponent } from "./donut-chart";
+export { StackedBarChartComponent } from "./stacked-bar-chart";
+export { PopulationSection } from "./population-section";
+export { LegalAdminSection } from "./legal-admin-section";
+export { EconomySection } from "./economy-section";
+export { TrainingSection } from "./training-section";
+export { HealthSection } from "./health-section";
+export { DiscriminationSection } from "./discrimination-section";
+export { SocialAidSection } from "./social-aid-section";
