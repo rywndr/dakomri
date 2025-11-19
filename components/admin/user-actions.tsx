@@ -11,6 +11,7 @@ import {
     Edit,
     Key,
     Link2,
+    Unlink,
 } from "lucide-react";
 import { authClient } from "@/lib/auth-client";
 import { Button } from "@/components/ui/button";
@@ -71,6 +72,7 @@ export function UserActions({
     const [isPasswordDialogOpen, setIsPasswordDialogOpen] = useState(false);
     const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
     const [isLinkDialogOpen, setIsLinkDialogOpen] = useState(false);
+    const [isUnlinkDialogOpen, setIsUnlinkDialogOpen] = useState(false);
     const [selectedRole, setSelectedRole] = useState(currentRole || "user");
     const [updateName, setUpdateName] = useState(userName);
     const [updateEmail, setUpdateEmail] = useState(userEmail);
@@ -338,6 +340,49 @@ export function UserActions({
         }
     };
 
+    const handleUnlinkSubmission = async () => {
+        if (!submissionId) {
+            toast.error("Tidak ada pengajuan yang terhubung");
+            return;
+        }
+
+        setIsLoading(true);
+        try {
+            const response = await fetch("/api/admin/users/unlink-submission", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    userId,
+                    submissionId,
+                }),
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                toast.error("Gagal memutus hubungan pengajuan", {
+                    description: data.error || "Silakan coba lagi",
+                });
+                return;
+            }
+
+            toast.success("Pengajuan berhasil diputus", {
+                description: `Pengajuan telah diputus dari ${userName}`,
+            });
+
+            setIsUnlinkDialogOpen(false);
+            router.refresh();
+        } catch {
+            toast.error("Terjadi kesalahan", {
+                description: "Gagal memutus hubungan pengajuan",
+            });
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
     return (
         <>
             <DropdownMenu>
@@ -370,6 +415,15 @@ export function UserActions({
                         <DropdownMenuItem onClick={handleOpenLinkDialog}>
                             <Link2 className="mr-2 h-4 w-4" />
                             Link Pengajuan
+                        </DropdownMenuItem>
+                    )}
+                    {hasSubmission && (
+                        <DropdownMenuItem
+                            onClick={() => setIsUnlinkDialogOpen(true)}
+                            className="text-orange-600 focus:text-orange-600"
+                        >
+                            <Unlink className="mr-2 h-4 w-4" />
+                            Putus Hubungan Pengajuan
                         </DropdownMenuItem>
                     )}
                     {isBanned ? (
@@ -646,6 +700,40 @@ export function UserActions({
                             }
                         >
                             {isLoading ? "Menghubungkan..." : "Link Pengajuan"}
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+
+            {/* Unlink Submission Dialog */}
+            <Dialog
+                open={isUnlinkDialogOpen}
+                onOpenChange={setIsUnlinkDialogOpen}
+            >
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Putus Hubungan Pengajuan</DialogTitle>
+                        <DialogDescription>
+                            Apakah Anda yakin ingin memutus hubungan pengajuan
+                            dari {userName}? Pengajuan akan menjadi tidak
+                            terhubung dengan akun pengguna manapun dan dapat
+                            di-link ulang nanti.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <DialogFooter>
+                        <Button
+                            variant="outline"
+                            onClick={() => setIsUnlinkDialogOpen(false)}
+                            disabled={isLoading}
+                        >
+                            Batal
+                        </Button>
+                        <Button
+                            variant="destructive"
+                            onClick={handleUnlinkSubmission}
+                            disabled={isLoading}
+                        >
+                            {isLoading ? "Memutus..." : "Putus Hubungan"}
                         </Button>
                     </DialogFooter>
                 </DialogContent>
