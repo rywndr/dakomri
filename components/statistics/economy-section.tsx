@@ -22,17 +22,17 @@ export function EconomySection({
     }));
 
     return (
-        <div className="space-y-4">
+        <div className="space-y-3 md:space-y-4">
             <div>
-                <h2 className="text-2xl font-bold tracking-tight">
+                <h2 className="text-xl font-bold tracking-tight sm:text-2xl">
                     Ekonomi & Ketenagakerjaan
                 </h2>
-                <p className="text-muted-foreground">
+                <p className="text-sm text-muted-foreground sm:text-base">
                     Status pekerjaan dan jenis pekerjaan responden
                 </p>
             </div>
 
-            <div className="grid gap-4 md:grid-cols-2">
+            <div className="grid gap-3 md:gap-4 md:grid-cols-2">
                 <PieChartComponent
                     title="Status Pekerjaan"
                     description="Distribusi status pekerjaan responden"

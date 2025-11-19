@@ -21,17 +21,17 @@ export function SocialAidSection({
     }));
 
     return (
-        <div className="space-y-4">
+        <div className="space-y-3 md:space-y-4">
             <div>
-                <h2 className="text-2xl font-bold tracking-tight">
+                <h2 className="text-xl font-bold tracking-tight sm:text-2xl">
                     Bantuan Sosial
                 </h2>
-                <p className="text-muted-foreground">
+                <p className="text-sm text-muted-foreground sm:text-base">
                     Akses bantuan sosial dan pendaftaran DTKS responden
                 </p>
             </div>
 
-            <div className="grid gap-4 md:grid-cols-2">
+            <div className="grid gap-3 md:gap-4 md:grid-cols-2">
                 <PieChartComponent
                     title="Penerima Bantuan Sosial"
                     description="Responden yang menerima bantuan sosial"

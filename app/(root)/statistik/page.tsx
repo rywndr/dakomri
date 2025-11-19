@@ -71,13 +71,14 @@ export default async function StatsPage() {
     ]);
 
     return (
-        <div className="container mx-auto py-8 space-y-8">
+        <div className="container mx-auto py-6 px-4 space-y-6 md:py-8 md:space-y-8">
             <div className="space-y-2">
-                <h1 className="text-3xl font-bold tracking-tight">
+                <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">
                     Statistik Data Waria Tanjungpinang
                 </h1>
-                <p className="text-muted-foreground">
-                    Visualisasi data komprehensif responden waria
+                <p className="text-sm text-muted-foreground sm:text-base">
+                    Visualisasi data komprehensif responden waria di Kota
+                    Tanjungpinang
                 </p>
             </div>
 
@@ -85,15 +86,15 @@ export default async function StatsPage() {
 
             <div className="space-y-4">
                 <div>
-                    <h2 className="text-2xl font-bold tracking-tight">
+                    <h2 className="text-xl font-bold tracking-tight sm:text-2xl">
                         Ringkasan Keseluruhan
                     </h2>
-                    <p className="text-muted-foreground">
+                    <p className="text-sm text-muted-foreground sm:text-base">
                         Indikator kunci dari data yang terkumpul
                     </p>
                 </div>
 
-                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
+                <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 md:gap-4">
                     <KPICard
                         title="Total Responden"
                         value={overallStats.totalRespondents}
@@ -181,9 +182,10 @@ export default async function StatsPage() {
                 dtksEnrollment={dtksEnrollment}
             />
 
-            <div className="pt-8 text-center text-sm text-muted-foreground">
+            <div className="pt-6 pb-4 text-center text-xs text-muted-foreground sm:text-sm md:pt-8">
                 <p>
-                    Data ini dikumpulkan untuk tujuan pendataan komunitas waria
+                    Data ini dikumpulkan untuk tujuan pendataan dan pemberdayaan
+                    komunitas waria di Tanjungpinang
                 </p>
             </div>
         </div>

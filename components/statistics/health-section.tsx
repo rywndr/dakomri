@@ -22,15 +22,17 @@ export function HealthSection({
     }));
 
     return (
-        <div className="space-y-4">
+        <div className="space-y-3 md:space-y-4">
             <div>
-                <h2 className="text-2xl font-bold tracking-tight">Kesehatan</h2>
-                <p className="text-muted-foreground">
+                <h2 className="text-xl font-bold tracking-tight sm:text-2xl">
+                    Kesehatan
+                </h2>
+                <p className="text-sm text-muted-foreground sm:text-base">
                     Akses layanan kesehatan dan kondisi kesehatan responden
                 </p>
             </div>
 
-            <div className="grid gap-4 md:grid-cols-2">
+            <div className="grid gap-3 md:gap-4 md:grid-cols-2">
                 <PieChartComponent
                     title="Akses Layanan Kesehatan"
                     description="Tempat responden mengakses layanan kesehatan"

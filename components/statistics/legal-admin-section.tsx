@@ -22,17 +22,17 @@ export function LegalAdminSection({
     }));
 
     return (
-        <div className="space-y-4">
+        <div className="space-y-3 md:space-y-4">
             <div>
-                <h2 className="text-2xl font-bold tracking-tight">
+                <h2 className="text-xl font-bold tracking-tight sm:text-2xl">
                     Administrasi Kependudukan & Jaminan Sosial
                 </h2>
-                <p className="text-muted-foreground">
+                <p className="text-sm text-muted-foreground sm:text-base">
                     Status dokumen dan jaminan sosial responden
                 </p>
             </div>
 
-            <div className="grid gap-4 md:grid-cols-2">
+            <div className="grid gap-3 md:gap-4 md:grid-cols-2">
                 <DonutChartComponent
                     title="Kepemilikan e-KTP"
                     description="Status kepemilikan e-KTP responden"
