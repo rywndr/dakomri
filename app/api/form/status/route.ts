@@ -1,17 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
-import { unstable_cache } from "next/cache";
 import { db } from "@/drizzle/db";
 import { formSubmission } from "@/drizzle/schema";
 import { auth } from "@/lib/auth";
 import { eq, and, or } from "drizzle-orm";
 
-// Revalidate cache setiap 5 menit (300 detik)
-export const revalidate = 300;
+// mark as dynamic coz using req headesr
+export const dynamic = "force-dynamic";
 
 /**
  * GET /api/form/status
  * Get the current user's form submission status
- * Cached for 5 minutes to reduce database load
  */
 export async function GET(req: NextRequest) {
     try {
@@ -31,39 +29,28 @@ export async function GET(req: NextRequest) {
             );
         }
 
-        // Cache query result untuk mengurangi load database
-        const getCachedSubmissionStatus = unstable_cache(
-            async (userId: string) => {
-                return await db
-                    .select({
-                        id: formSubmission.id,
-                        status: formSubmission.status,
-                        createdAt: formSubmission.createdAt,
-                        verifiedAt: formSubmission.verifiedAt,
-                        rejectionReason: formSubmission.rejectionReason,
-                    })
-                    .from(formSubmission)
-                    .where(
-                        and(
-                            eq(formSubmission.userId, userId),
-                            or(
-                                eq(formSubmission.status, "submitted"),
-                                eq(formSubmission.status, "verified"),
-                                eq(formSubmission.status, "rejected"),
-                            ),
-                        ),
-                    )
-                    .orderBy(formSubmission.createdAt)
-                    .limit(1);
-            },
-            [`form-status-${session.user.id}`],
-            {
-                tags: [`user-${session.user.id}`, "form-status"],
-                revalidate: 300, // 5 menit
-            },
-        );
-
-        const submissions = await getCachedSubmissionStatus(session.user.id);
+        // Query for any submission by this user that is not a draft
+        const submissions = await db
+            .select({
+                id: formSubmission.id,
+                status: formSubmission.status,
+                createdAt: formSubmission.createdAt,
+                verifiedAt: formSubmission.verifiedAt,
+                rejectionReason: formSubmission.rejectionReason,
+            })
+            .from(formSubmission)
+            .where(
+                and(
+                    eq(formSubmission.userId, session.user.id),
+                    or(
+                        eq(formSubmission.status, "submitted"),
+                        eq(formSubmission.status, "verified"),
+                        eq(formSubmission.status, "rejected"),
+                    ),
+                ),
+            )
+            .orderBy(formSubmission.createdAt)
+            .limit(1);
 
         if (submissions.length === 0) {
             return NextResponse.json(

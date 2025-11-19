@@ -1,3 +1,4 @@
+import { Metadata } from "next";
 import { Suspense } from "react";
 import { PostsList } from "@/components/kegiatan/posts-list";
 import { PostsSearch } from "@/components/kegiatan/posts-search";
@@ -104,7 +105,7 @@ export default async function KegiatanPage({
 /**
  * Metadata untuk halaman
  */
-export const metadata = {
+export const metadata: Metadata = {
     title: "Kegiatan | DAKOMRI Tanjungpinang",
     description:
         "Informasi kegiatan dan program untuk komunitas waria di Tanjungpinang",
