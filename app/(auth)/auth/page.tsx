@@ -16,7 +16,7 @@ export default function AuthPage() {
                 <div className="mb-2 text-center">
                     <div className="mx-auto mb-4 size-28 relative">
                         <Image
-                            src="/pkbi.svg"
+                            src="/pkbi.png"
                             alt="PKBI Logo"
                             fill
                             className="object-contain"
