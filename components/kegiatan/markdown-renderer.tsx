@@ -99,11 +99,8 @@ export function MarkdownRenderer({
                         className,
                         children,
                         ...props
-                    }: {
+                    }: React.ComponentPropsWithoutRef<"code"> & {
                         inline?: boolean;
-                        className?: string;
-                        children?: React.ReactNode;
-                        [key: string]: unknown;
                     }) => {
                         if (inline) {
                             return (
