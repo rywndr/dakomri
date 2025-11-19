@@ -4,6 +4,7 @@ import { formSubmission } from "@/drizzle/schema";
 import { formSubmissionSchema } from "@/lib/validations/form-validation";
 import { auth } from "@/lib/auth";
 import { nanoid } from "nanoid";
+import { revalidateFormStatus } from "@/lib/revalidate";
 
 /**
  * POST /api/form/submit
@@ -128,6 +129,11 @@ export async function POST(req: NextRequest) {
 
         // Insert ke database
         await db.insert(formSubmission).values(submissionData);
+
+        // Revalidate cache untuk form status user ini
+        if (user?.id) {
+            await revalidateFormStatus(user.id);
+        }
 
         return NextResponse.json(
             {

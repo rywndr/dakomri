@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { getFormStatus } from "@/app/actions/form-status";
 import {
     LogOutIcon,
     ShieldIcon,
@@ -10,6 +11,7 @@ import {
     Clock,
     XCircle,
     FileText,
+    User,
 } from "lucide-react";
 import { authClient } from "@/lib/auth-client";
 import { getInitials, getRoleBadgeColor } from "@/lib/helpers";
@@ -36,29 +38,23 @@ interface SubmissionStatus {
 
 export function UserMenu({ session }: UserMenuProps) {
     const router = useRouter();
-    const [submissionStatus, setSubmissionStatus] = useState<SubmissionStatus>({
-        hasSubmitted: false,
-        status: null,
-    });
 
     /**
-     * Fetch user's form submission status
+     * Fetch user's form submission status dengan React Query caching
+     * Cache selama 5 menit untuk mengurangi database load
+     * Menggunakan server action yang sudah di-cache di server side
      */
-    useEffect(() => {
-        if (session?.user) {
-            fetch("/api/form/status")
-                .then((res) => res.json())
-                .then((data) => {
-                    setSubmissionStatus({
-                        hasSubmitted: data.hasSubmitted || false,
-                        status: data.status || null,
-                    });
-                })
-                .catch((error) => {
-                    console.error("Failed to fetch submission status:", error);
-                });
-        }
-    }, [session]);
+    const { data: submissionStatus, isLoading } = useQuery({
+        queryKey: ["formStatus"],
+        queryFn: () => getFormStatus(),
+        enabled: !!session?.user,
+        staleTime: 5 * 60 * 1000, // 5 menit - data dianggap fresh
+        gcTime: 10 * 60 * 1000, // 10 menit - cache cleanup time
+        refetchOnWindowFocus: false, // Jangan refetch saat window focus
+        refetchOnMount: false, // Jangan refetch saat component mount jika data masih fresh
+        refetchOnReconnect: false, // Jangan refetch saat reconnect
+        networkMode: "offlineFirst", // Prioritaskan cache
+    });
 
     /**
      * Handle logout user
@@ -119,6 +115,17 @@ export function UserMenu({ session }: UserMenuProps) {
                     </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
+                <DropdownMenuItem asChild>
+                    <Link href="/profile">
+                        <User className="mr-2 size-4" />
+                        <span>Profil</span>
+                    </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem variant="destructive" onClick={handleLogout}>
+                    <LogOutIcon className="mr-2 size-4" />
+                    <span>Log out</span>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
                 <DropdownMenuItem disabled>
                     <ShieldIcon className="mr-2 size-4" />
                     <span className="flex-1">Role</span>
@@ -130,11 +137,14 @@ export function UserMenu({ session }: UserMenuProps) {
                         {session.user.role ?? "user"}
                     </span>
                 </DropdownMenuItem>
-                <DropdownMenuSeparator />
                 <DropdownMenuItem disabled>
                     <FileText className="mr-2 size-4" />
                     <span className="flex-1">Status Form</span>
-                    {submissionStatus.hasSubmitted ? (
+                    {isLoading ? (
+                        <span className="text-xs text-muted-foreground">
+                            Loading...
+                        </span>
+                    ) : submissionStatus?.hasSubmitted ? (
                         <div className="flex items-center gap-1">
                             {submissionStatus.status === "submitted" && (
                                 <>
@@ -166,11 +176,6 @@ export function UserMenu({ session }: UserMenuProps) {
                             Belum Submit
                         </span>
                     )}
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem variant="destructive" onClick={handleLogout}>
-                    <LogOutIcon className="mr-2 size-4" />
-                    <span>Log out</span>
                 </DropdownMenuItem>
             </DropdownMenuContent>
         </DropdownMenu>
