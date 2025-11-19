@@ -5,6 +5,7 @@ import { useForm } from "@tanstack/react-form";
 import { useRouter } from "next/navigation";
 import { formSubmissionSchema } from "@/lib/validations/form-validation";
 import { Button } from "@/components/ui/button";
+import { ArrowLeft } from "lucide-react";
 import {
     Card,
     CardContent,
@@ -27,7 +28,11 @@ import {
     Section11,
 } from "@/components/form/sections-6-11";
 
-export function AdminFormClient() {
+interface AdminFormClientProps {
+    onBack?: () => void;
+}
+
+export function AdminFormClient({ onBack }: AdminFormClientProps = {}) {
     const router = useRouter();
     const [isLoading, setIsLoading] = useState(false);
     const formRef = useRef<HTMLFormElement>(null);
@@ -160,6 +165,17 @@ export function AdminFormClient() {
         <div className="flex flex-1 flex-col gap-4">
             <div className="flex items-center justify-between">
                 <div>
+                    {onBack && (
+                        <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={onBack}
+                            className="mb-2 gap-2"
+                        >
+                            <ArrowLeft className="h-4 w-4" />
+                            Kembali
+                        </Button>
+                    )}
                     <h1 className="text-3xl font-bold tracking-tight">
                         Buat Pengajuan Baru
                     </h1>

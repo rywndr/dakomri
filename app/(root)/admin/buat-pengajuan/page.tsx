@@ -1,6 +1,6 @@
 import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
-import { AdminFormClient } from "@/components/form/admin-form-client";
+import { SubmissionEntryWrapper } from "@/components/admin/submission-entry/submission-entry-wrapper";
 
 export default async function BuatPengajuanPage() {
     // get admin status
@@ -12,5 +12,5 @@ export default async function BuatPengajuanPage() {
         throw new Error("Unauthorized");
     }
 
-    return <AdminFormClient />;
+    return <SubmissionEntryWrapper />;
 }
