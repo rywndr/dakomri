@@ -10,16 +10,27 @@ import {
     navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu";
 import { UserMenu } from "./user-menu";
+import { MobileNav } from "./mobile-nav";
 import Logo from "@/public/pkbi.png";
 
+/**
+ * Navbar component dengan desktop dan mobile navigation
+ * Server component - mobile nav di-render sebagai client component terpisah
+ */
 export async function Navbar() {
     const session = await auth.api.getSession({
         headers: await headers(),
     });
 
+    const isAdmin = session?.user?.role === "admin";
+
     return (
         <nav className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60">
             <div className="container mx-auto flex h-16 items-center justify-between px-4">
+                {/* Mobile Nav Toggle */}
+                <MobileNav isAdmin={isAdmin} />
+
+                {/* Logo */}
                 <Link
                     href="/"
                     className="flex items-center gap-3 font-bold text-lg hover:opacity-80 transition-opacity"
@@ -75,7 +86,7 @@ export async function Navbar() {
                                 Kegiatan
                             </NavigationMenuLink>
                         </NavigationMenuItem>
-                        {session?.user?.role === "admin" && (
+                        {isAdmin && (
                             <NavigationMenuItem>
                                 <NavigationMenuLink
                                     href="/admin"
@@ -88,6 +99,7 @@ export async function Navbar() {
                     </NavigationMenuList>
                 </NavigationMenu>
 
+                {/* User Menu */}
                 <UserMenu session={session} />
             </div>
         </nav>
