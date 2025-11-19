@@ -19,7 +19,7 @@ export function DukunganSection() {
                     <Card>
                         <CardContent className="p-8 md:p-12">
                             <div className="flex flex-wrap items-center justify-center gap-8 md:gap-16">
-                                <div className="relative h-48 w-56 hover:grayscale-0 transition-all duration-300">
+                                <div className="relative h-24 w-32 md:h-48 md:w-56 hover:grayscale-0 transition-all duration-300">
                                     <Image
                                         src="/stti.png"
                                         fill
@@ -27,7 +27,7 @@ export function DukunganSection() {
                                         alt="Logo STT Indonesia Tanjungpinang"
                                     />
                                 </div>
-                                <div className="relative h-48 w-56 hover:grayscale-0 transition-all duration-300">
+                                <div className="relative h-24 w-32 md:h-48 md:w-56 hover:grayscale-0 transition-all duration-300">
                                     <Image
                                         src="/pkbi.png"
                                         fill

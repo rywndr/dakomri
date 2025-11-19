@@ -258,13 +258,14 @@ export function AdminFormClient({ onBack }: AdminFormClientProps = {}) {
                                 variant="outline"
                                 onClick={() => router.push("/admin/komunitas")}
                                 disabled={isLoading}
+                                className="flex-1 cursor-pointer"
                             >
                                 Batal
                             </Button>
                             <Button
                                 type="submit"
                                 disabled={isLoading}
-                                className="flex-1"
+                                className="flex-1 cursor-pointer"
                             >
                                 {isLoading ? (
                                     <>

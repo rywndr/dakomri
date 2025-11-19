@@ -368,7 +368,7 @@ export function FormClient() {
                             <Button
                                 type="submit"
                                 disabled={isLoading}
-                                className="flex-1"
+                                className="flex-1 cursor-pointer"
                             >
                                 {isLoading ? (
                                     <>

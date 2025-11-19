@@ -79,10 +79,10 @@ export function DeleteAccountTab() {
             <CardContent className="space-y-4">
                 <div className="space-y-2">
                     <h4 className="font-medium">Hapus Akun</h4>
-                    <p className="text-sm text-muted-foreground">
+                    <div className="text-sm text-muted-foreground">
                         Menghapus akun Anda akan menghapus semua data yang
                         terkait dengan akun ini, termasuk:
-                    </p>
+                    </div>
                     <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1 ml-2">
                         <li>Informasi profil pribadi</li>
                         <li>Data formulir yang telah disubmit</li>
@@ -90,13 +90,13 @@ export function DeleteAccountTab() {
                         <li>Riwayat aktivitas</li>
                     </ul>
                     <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-4 mt-4">
-                        <p className="text-sm font-medium text-destructive">
+                        <div className="text-sm font-medium text-destructive">
                             ⚠️ Peringatan: Tindakan ini bersifat permanen
-                        </p>
-                        <p className="text-xs text-muted-foreground mt-1">
+                        </div>
+                        <div className="text-xs text-muted-foreground mt-1">
                             Data yang sudah dihapus tidak dapat dipulihkan
                             kembali.
-                        </p>
+                        </div>
                     </div>
                 </div>
 
@@ -115,12 +115,12 @@ export function DeleteAccountTab() {
                                 Apakah Anda yakin ingin menghapus akun?
                             </AlertDialogTitle>
                             <AlertDialogDescription className="space-y-4">
-                                <p>
+                                <div>
                                     Tindakan ini akan menghapus akun Anda secara
                                     permanen beserta semua data yang terkait.
                                     Anda akan logout secara otomatis dan tidak
                                     dapat login kembali dengan akun ini.
-                                </p>
+                                </div>
                                 <div className="space-y-2">
                                     <Label htmlFor="confirm-delete">
                                         Ketik{" "}

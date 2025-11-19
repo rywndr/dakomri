@@ -26,22 +26,34 @@ interface ProfileTabsProps {
 export function ProfileTabs({ user, sessions }: ProfileTabsProps) {
     return (
         <Tabs defaultValue="profile" className="w-full">
-            <TabsList className="w-full grid grid-cols-2 lg:grid-cols-4">
-                <TabsTrigger value="profile" className="gap-2">
+            <TabsList className="w-full grid grid-cols-2 lg:grid-cols-4 h-auto">
+                <TabsTrigger
+                    value="profile"
+                    className="gap-1 flex-col sm:flex-row sm:gap-2 py-2 sm:py-1.5"
+                >
                     <User className="size-4" />
-                    <span className="hidden sm:inline">Profil</span>
+                    <span className="text-xs sm:text-sm">Profil</span>
                 </TabsTrigger>
-                <TabsTrigger value="security" className="gap-2">
+                <TabsTrigger
+                    value="security"
+                    className="gap-1 flex-col sm:flex-row sm:gap-2 py-2 sm:py-1.5"
+                >
                     <Shield className="size-4" />
-                    <span className="hidden sm:inline">Keamanan</span>
+                    <span className="text-xs sm:text-sm">Keamanan</span>
                 </TabsTrigger>
-                <TabsTrigger value="sessions" className="gap-2">
+                <TabsTrigger
+                    value="sessions"
+                    className="gap-1 flex-col sm:flex-row sm:gap-2 py-2 sm:py-1.5"
+                >
                     <Monitor className="size-4" />
-                    <span className="hidden sm:inline">Sesi</span>
+                    <span className="text-xs sm:text-sm">Sesi</span>
                 </TabsTrigger>
-                <TabsTrigger value="delete" className="gap-2">
+                <TabsTrigger
+                    value="delete"
+                    className="gap-1 flex-col sm:flex-row sm:gap-2 py-2 sm:py-1.5"
+                >
                     <Trash2 className="size-4" />
-                    <span className="hidden sm:inline">Hapus Akun</span>
+                    <span className="text-xs sm:text-sm">Hapus Akun</span>
                 </TabsTrigger>
             </TabsList>
 

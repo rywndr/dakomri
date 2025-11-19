@@ -67,7 +67,7 @@ export function MobileNav({ isAdmin = false }: MobileNavProps) {
                     </SheetTitle>
                 </SheetHeader>
 
-                <nav className="mt-8 flex flex-col gap-2">
+                <nav className="flex flex-col gap-2">
                     {navLinks.map((link) => (
                         <Link
                             key={link.href}
