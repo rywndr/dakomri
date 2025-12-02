@@ -30,7 +30,11 @@ export default async function ProfilePage() {
             <ProfileHeader user={session.user} />
 
             {/* Tabs untuk manajemen profil */}
-            <ProfileTabs user={session.user} sessions={sessions || []} />
+            <ProfileTabs
+                user={session.user}
+                sessions={sessions || []}
+                currentSessionId={session.session.id}
+            />
         </div>
     );
 }

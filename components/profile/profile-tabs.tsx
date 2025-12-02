@@ -21,9 +21,14 @@ interface ProfileTabsProps {
         updatedAt: Date;
         ipAddress?: string | null;
     }>;
+    currentSessionId: string;
 }
 
-export function ProfileTabs({ user, sessions }: ProfileTabsProps) {
+export function ProfileTabs({
+    user,
+    sessions,
+    currentSessionId,
+}: ProfileTabsProps) {
     return (
         <Tabs defaultValue="profile" className="w-full">
             <TabsList className="w-full grid grid-cols-2 lg:grid-cols-4 h-auto">
@@ -67,7 +72,10 @@ export function ProfileTabs({ user, sessions }: ProfileTabsProps) {
                 </TabsContent>
 
                 <TabsContent value="sessions">
-                    <SessionsTab sessions={sessions} />
+                    <SessionsTab
+                        sessions={sessions}
+                        currentSessionId={currentSessionId}
+                    />
                 </TabsContent>
 
                 <TabsContent value="delete">

@@ -33,6 +33,7 @@ interface SessionsTabProps {
         updatedAt: Date;
         ipAddress?: string | null;
     }>;
+    currentSessionId: string;
 }
 
 function parseUserAgent(userAgent?: string | null) {
@@ -67,15 +68,13 @@ function parseUserAgent(userAgent?: string | null) {
     return { device, browser, icon };
 }
 
-export function SessionsTab({ sessions }: SessionsTabProps) {
+export function SessionsTab({ sessions, currentSessionId }: SessionsTabProps) {
     const router = useRouter();
     const [loadingSessionId, setLoadingSessionId] = useState<string | null>(
         null,
     );
 
-    /**
-     * Handle revoke session
-     */
+    // Hapus sesi tertentu
     const handleRevokeSession = async (sessionId: string) => {
         setLoadingSessionId(sessionId);
 
@@ -94,9 +93,7 @@ export function SessionsTab({ sessions }: SessionsTabProps) {
         }
     };
 
-    /**
-     * Handle revoke semua sesi kecuali yang aktif
-     */
+    // Hapus semua sesi kecuali yang aktif
     const handleRevokeOtherSessions = async () => {
         setLoadingSessionId("all");
 
@@ -149,12 +146,13 @@ export function SessionsTab({ sessions }: SessionsTabProps) {
                         </div>
                     ) : (
                         <div className="space-y-4">
-                            {sessions.map((session, index) => {
+                            {sessions.map((session) => {
                                 const deviceInfo = parseUserAgent(
                                     session.userAgent,
                                 );
                                 const DeviceIcon = deviceInfo.icon;
-                                const isCurrentSession = index === 0; // Asumsi sesi pertama adalah sesi aktif
+                                const isCurrentSession =
+                                    session.id === currentSessionId;
 
                                 return (
                                     <div
