@@ -20,7 +20,6 @@ import {
     AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { MoreVertical, Edit, Trash2, Eye, EyeOff, Loader2 } from "lucide-react";
-import { deletePost, togglePublishStatus } from "@/app/actions/posts";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import type { Post } from "@/drizzle/schema";
@@ -33,6 +32,7 @@ interface AdminPostActionsProps {
 /**
  * Komponen actions untuk admin di table/list posts
  * Menampilkan dropdown menu dengan opsi edit, toggle publish, dan delete
+ * Menggunakan API routes untuk mutasi data
  */
 export function AdminPostActions({ post }: AdminPostActionsProps) {
     const router = useRouter();
@@ -41,14 +41,21 @@ export function AdminPostActions({ post }: AdminPostActionsProps) {
     const [isToggling, setIsToggling] = useState(false);
 
     /**
-     * Handler untuk toggle publish status
+     * Handler untuk toggle publish status via API
      */
     const handleTogglePublish = async () => {
         setIsToggling(true);
         try {
-            const result = await togglePublishStatus(post.id);
+            const response = await fetch(
+                `/api/posts/${post.id}/toggle-publish`,
+                {
+                    method: "POST",
+                },
+            );
 
-            if (result.success) {
+            const result = await response.json();
+
+            if (response.ok && result.success) {
                 toast.success(result.message);
                 router.refresh();
             } else {
@@ -63,14 +70,18 @@ export function AdminPostActions({ post }: AdminPostActionsProps) {
     };
 
     /**
-     * Handler untuk delete post
+     * Handler untuk delete post via API
      */
     const handleDelete = async () => {
         setIsDeleting(true);
         try {
-            const result = await deletePost(post.id);
+            const response = await fetch(`/api/posts/${post.id}`, {
+                method: "DELETE",
+            });
 
-            if (result.success) {
+            const result = await response.json();
+
+            if (response.ok && result.success) {
                 toast.success(result.message);
                 setDeleteDialogOpen(false);
                 router.refresh();

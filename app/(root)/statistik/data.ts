@@ -1,3 +1,4 @@
+import { cacheLife, cacheTag } from "next/cache";
 import { db } from "@/drizzle/db";
 import { formSubmission } from "@/drizzle/schemas/form-schema";
 import { sql, inArray } from "drizzle-orm";
@@ -12,10 +13,15 @@ export type OverallStats = {
 
 /**
  * Fetch statistik keseluruhan
+ * Cached dengan cacheLife 'days' - revalidate harian
  */
 export async function getOverallStats(): Promise<OverallStats> {
-    // Hanya ambil data yang sudah verified atau submitted
-    const validStatuses = ["verified", "submitted"];
+    "use cache";
+    cacheLife("days");
+    cacheTag("statistics", "overall-stats");
+
+    // Hanya ambil data yang sudah verified (approved)
+    const validStatuses = ["verified"];
 
     const results = await db
         .select({
@@ -47,9 +53,14 @@ export async function getOverallStats(): Promise<OverallStats> {
 
 /**
  * Distribusi usia (grouping by range)
+ * Cached dengan cacheLife 'days'
  */
 export async function getAgeDistribution() {
-    const validStatuses = ["verified", "submitted"];
+    "use cache";
+    cacheLife("days");
+    cacheTag("statistics", "age-distribution");
+
+    const validStatuses = ["verified"];
 
     const results = await db
         .select({
@@ -85,9 +96,14 @@ export async function getAgeDistribution() {
 
 /**
  * Kepemilikan e-KTP
+ * Cached dengan cacheLife 'days'
  */
 export async function getEKTPOwnership() {
-    const validStatuses = ["verified", "submitted"];
+    "use cache";
+    cacheLife("days");
+    cacheTag("statistics", "ektp-ownership");
+
+    const validStatuses = ["verified"];
 
     const results = await db
         .select({
@@ -106,9 +122,14 @@ export async function getEKTPOwnership() {
 
 /**
  * Jaminan sosial
+ * Cached dengan cacheLife 'days'
  */
 export async function getSocialSecurityDistribution() {
-    const validStatuses = ["verified", "submitted"];
+    "use cache";
+    cacheLife("days");
+    cacheTag("statistics", "social-security");
+
+    const validStatuses = ["verified"];
 
     const results = await db
         .select({
@@ -127,9 +148,14 @@ export async function getSocialSecurityDistribution() {
 
 /**
  * Status pekerjaan
+ * Cached dengan cacheLife 'days'
  */
 export async function getEmploymentStatus() {
-    const validStatuses = ["verified", "submitted"];
+    "use cache";
+    cacheLife("days");
+    cacheTag("statistics", "employment-status");
+
+    const validStatuses = ["verified"];
 
     const results = await db
         .select({
@@ -148,8 +174,13 @@ export async function getEmploymentStatus() {
 
 /**
  * Jenis pekerjaan
+ * Cached dengan cacheLife 'days'
  */
 export async function getJobTypes() {
+    "use cache";
+    cacheLife("days");
+    cacheTag("statistics", "job-types");
+
     const results = await db
         .select({
             jobType: formSubmission.jenisPekerjaan,
@@ -157,7 +188,7 @@ export async function getJobTypes() {
         })
         .from(formSubmission)
         .where(
-            sql`${formSubmission.status} IN ('verified', 'submitted')
+            sql`${formSubmission.status} = 'verified'
             and ${formSubmission.jenisPekerjaan} is not null
             and ${formSubmission.statusPekerjaan} = 'Bekerja'`,
         )
@@ -171,9 +202,14 @@ export async function getJobTypes() {
 
 /**
  * Partisipasi pelatihan
+ * Cached dengan cacheLife 'days'
  */
 export async function getTrainingParticipation() {
-    const validStatuses = ["verified", "submitted"];
+    "use cache";
+    cacheLife("days");
+    cacheTag("statistics", "training-participation");
+
+    const validStatuses = ["verified"];
 
     const results = await db
         .select({
@@ -192,15 +228,20 @@ export async function getTrainingParticipation() {
 
 /**
  * Jenis pelatihan yang paling umum diikuti
+ * Cached dengan cacheLife 'days'
  */
 export async function getMostCommonTraining() {
+    "use cache";
+    cacheLife("days");
+    cacheTag("statistics", "common-training");
+
     const submissions = await db
         .select({
             trainings: formSubmission.jenisPelatihanDiikuti,
         })
         .from(formSubmission)
         .where(
-            sql`${formSubmission.status} IN ('verified', 'submitted')
+            sql`${formSubmission.status} = 'verified'
             and ${formSubmission.jenisPelatihanDiikuti} is not null`,
         );
 
@@ -230,15 +271,20 @@ export async function getMostCommonTraining() {
 
 /**
  * Pelatihan yang diinginkan
+ * Cached dengan cacheLife 'days'
  */
 export async function getRequestedTraining() {
+    "use cache";
+    cacheLife("days");
+    cacheTag("statistics", "requested-training");
+
     const submissions = await db
         .select({
             trainings: formSubmission.pelatihanDiinginkan,
         })
         .from(formSubmission)
         .where(
-            sql`${formSubmission.status} IN ('verified', 'submitted')
+            sql`${formSubmission.status} = 'verified'
             and ${formSubmission.pelatihanDiinginkan} is not null`,
         );
 
@@ -268,9 +314,14 @@ export async function getRequestedTraining() {
 
 /**
  * Akses layanan kesehatan
+ * Cached dengan cacheLife 'days'
  */
 export async function getHealthcareAccess() {
-    const validStatuses = ["verified", "submitted"];
+    "use cache";
+    cacheLife("days");
+    cacheTag("statistics", "healthcare-access");
+
+    const validStatuses = ["verified"];
 
     const results = await db
         .select({
@@ -289,9 +340,14 @@ export async function getHealthcareAccess() {
 
 /**
  * Penyakit kronis
+ * Cached dengan cacheLife 'days'
  */
 export async function getChronicIllness() {
-    const validStatuses = ["verified", "submitted"];
+    "use cache";
+    cacheLife("days");
+    cacheTag("statistics", "chronic-illness");
+
+    const validStatuses = ["verified"];
 
     const results = await db
         .select({
@@ -310,9 +366,14 @@ export async function getChronicIllness() {
 
 /**
  * Pengalaman diskriminasi
+ * Cached dengan cacheLife 'days'
  */
 export async function getDiscriminationExperience() {
-    const validStatuses = ["verified", "submitted"];
+    "use cache";
+    cacheLife("days");
+    cacheTag("statistics", "discrimination-experience");
+
+    const validStatuses = ["verified"];
 
     const results = await db
         .select({
@@ -331,15 +392,20 @@ export async function getDiscriminationExperience() {
 
 /**
  * Jenis diskriminasi (untuk stacked bar)
+ * Cached dengan cacheLife 'days'
  */
 export async function getDiscriminationTypes() {
+    "use cache";
+    cacheLife("days");
+    cacheTag("statistics", "discrimination-types");
+
     const submissions = await db
         .select({
             types: formSubmission.jenisDiskriminasi,
         })
         .from(formSubmission)
         .where(
-            sql`${formSubmission.status} IN ('verified', 'submitted')
+            sql`${formSubmission.status} = 'verified'
             and ${formSubmission.jenisDiskriminasi} is not null
             and ${formSubmission.pernahDiskriminasi} = 'Pernah mengalami'`,
         );
@@ -369,9 +435,14 @@ export async function getDiscriminationTypes() {
 
 /**
  * Penerima bantuan sosial
+ * Cached dengan cacheLife 'days'
  */
 export async function getSocialAidRecipients() {
-    const validStatuses = ["verified", "submitted"];
+    "use cache";
+    cacheLife("days");
+    cacheTag("statistics", "social-aid-recipients");
+
+    const validStatuses = ["verified"];
 
     const results = await db
         .select({
@@ -390,9 +461,14 @@ export async function getSocialAidRecipients() {
 
 /**
  * Pendaftaran DTKS
+ * Cached dengan cacheLife 'days'
  */
 export async function getDTKSEnrollment() {
-    const validStatuses = ["verified", "submitted"];
+    "use cache";
+    cacheLife("days");
+    cacheTag("statistics", "dtks-enrollment");
+
+    const validStatuses = ["verified"];
 
     const results = await db
         .select({

@@ -14,10 +14,18 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { MarkdownEditor } from "./markdown-editor";
-import { createPost, updatePost, PostInput } from "@/app/actions/posts";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 import type { Post } from "@/drizzle/schema";
+
+/**
+ * Interface untuk data form post
+ */
+export interface PostInput {
+    title: string;
+    content: string;
+    published: "draft" | "published";
+}
 
 interface PostFormDialogProps {
     open: boolean;
@@ -26,6 +34,10 @@ interface PostFormDialogProps {
     onSuccess?: () => void;
 }
 
+/**
+ * Dialog form untuk membuat atau mengedit post
+ * Menggunakan API routes untuk mutasi data
+ */
 export function PostFormDialog({
     open,
     onOpenChange,
@@ -62,7 +74,7 @@ export function PostFormDialog({
     }, [open, post]);
 
     /**
-     * Handler untuk submit form
+     * Handler untuk submit form via API
      */
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -81,17 +93,31 @@ export function PostFormDialog({
         setIsSubmitting(true);
 
         try {
-            let result;
+            let response;
 
             if (isEdit && post) {
-                // Update post yang sudah ada
-                result = await updatePost(post.id, formData);
+                // Update post yang sudah ada via API
+                response = await fetch(`/api/posts/${post.id}`, {
+                    method: "PUT",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify(formData),
+                });
             } else {
-                // Create post baru
-                result = await createPost(formData);
+                // Create post baru via API
+                response = await fetch("/api/posts", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify(formData),
+                });
             }
 
-            if (result.success) {
+            const result = await response.json();
+
+            if (response.ok && result.success) {
                 toast.success(result.message);
                 onOpenChange(false);
                 onSuccess?.();

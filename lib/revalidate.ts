@@ -7,8 +7,17 @@ import { revalidateTag } from "next/cache";
  * Digunakan setelah user submit, update, atau delete form submission
  */
 export async function revalidateFormStatus(userId: string) {
-    revalidateTag(`user-${userId}`, "max");
+    revalidateTag(`form-status-${userId}`, "max");
     revalidateTag("form-status", "max");
+}
+
+/**
+ * Revalidate user info cache untuk user tertentu
+ * Digunakan setelah user update profile (nama, dll)
+ */
+export async function revalidateUserInfo(userId: string) {
+    revalidateTag(`user-info-${userId}`, "max");
+    revalidateTag("user-info", "max");
 }
 
 /**
@@ -25,4 +34,29 @@ export async function revalidateAllFormStatus() {
  */
 export async function revalidateStatistics() {
     revalidateTag("statistics", "max");
+}
+
+/**
+ * Revalidate posts/kegiatan cache
+ * Digunakan setelah create/update/delete post
+ */
+export async function revalidatePosts() {
+    revalidateTag("posts", "max");
+}
+
+/**
+ * Revalidate single post cache
+ * Digunakan setelah update single post
+ */
+export async function revalidatePost(postId: string) {
+    revalidateTag(`post-${postId}`, "max");
+    revalidateTag("posts", "max");
+}
+
+/**
+ * Revalidate admin submissions cache
+ * Digunakan setelah ada perubahan pada submissions
+ */
+export async function revalidateSubmissions() {
+    revalidateTag("admin-submissions", "max");
 }

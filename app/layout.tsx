@@ -16,7 +16,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
     title: "Dakomri",
-    description: "Website Pendataan ...",
+    description: "Website Pendataan Waria Wilayah Bintan Raya",
 };
 
 export default function RootLayout({

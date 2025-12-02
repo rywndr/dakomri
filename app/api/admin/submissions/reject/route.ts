@@ -1,11 +1,20 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest, NextResponse, connection } from "next/server";
 import { headers } from "next/headers";
+import { revalidatePath } from "next/cache";
 import { auth } from "@/lib/auth";
 import { db } from "@/drizzle/db";
 import { formSubmission } from "@/drizzle/schema";
 import { eq } from "drizzle-orm";
+import {
+    revalidateFormStatus,
+    revalidateSubmissions,
+    revalidateStatistics,
+} from "@/lib/revalidate";
 
 export async function POST(request: NextRequest) {
+    // Opt into dynamic rendering
+    await connection();
+
     try {
         // Check if user is authenticated and is an admin
         const session = await auth.api.getSession({
@@ -70,6 +79,18 @@ export async function POST(request: NextRequest) {
             })
             .where(eq(formSubmission.id, submissionId))
             .returning();
+
+        // Revalidate caches setelah rejection
+        // 1. Revalidate form status untuk user terkait
+        if (existingSubmission.userId) {
+            await revalidateFormStatus(existingSubmission.userId);
+        }
+        // 2. Revalidate admin submissions cache
+        await revalidateSubmissions();
+        // 3. Revalidate statistics karena data berubah
+        await revalidateStatistics();
+        // 4. Revalidate the submissions page path
+        revalidatePath("/admin/submissions");
 
         return NextResponse.json(
             {

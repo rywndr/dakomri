@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useRef } from "react";
 import { useForm } from "@tanstack/react-form";
 import { useRouter } from "next/navigation";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import type { CommunityFormApi, FormData } from "@/types/form";
 
 import { formSubmissionSchema } from "@/lib/validations/form-validation";
@@ -31,40 +32,60 @@ import {
     Section11,
 } from "@/components/form/sections-6-11";
 
-interface SubmissionStatus {
+/**
+ * Interface untuk status submission
+ */
+interface FormStatus {
     hasSubmitted: boolean;
-    status: string | null;
+    status: "submitted" | "verified" | "rejected" | null;
 }
 
+/**
+ * Fetch form status from API
+ */
+async function fetchFormStatus(): Promise<FormStatus> {
+    const response = await fetch("/api/form/status");
+    if (!response.ok) return { hasSubmitted: false, status: null };
+    return response.json();
+}
+
+function FormStatusSkeleton() {
+    return (
+        <div className="container mx-auto py-8 px-4 max-w-5xl">
+            <Card>
+                <CardHeader>
+                    <Skeleton className="h-8 w-3/4 mb-2" />
+                    <Skeleton className="h-4 w-full max-w-xl" />
+                </CardHeader>
+                <CardContent className="space-y-6">
+                    <Skeleton className="h-20 w-full rounded-lg" />
+                    <Skeleton className="h-10 w-40" />
+                </CardContent>
+            </Card>
+        </div>
+    );
+}
+
+/**
+ * FormClient - Client component untuk form pendataan komunitas
+ * Uses TanStack Query for form status to stay in sync with navbar
+ */
 export function FormClient() {
     const router = useRouter();
-    const [isLoading, setIsLoading] = useState(false);
-    const [submissionStatus, setSubmissionStatus] = useState<SubmissionStatus>({
-        hasSubmitted: false,
-        status: null,
-    });
-    const [isCheckingStatus, setIsCheckingStatus] = useState(true);
+    const queryClient = useQueryClient();
     const formRef = useRef<HTMLFormElement>(null);
 
-    // Cek status submission user
-    useEffect(() => {
-        const checkSubmissionStatus = async () => {
-            try {
-                const response = await fetch("/api/form/status");
-                const data = await response.json();
-                setSubmissionStatus({
-                    hasSubmitted: data.hasSubmitted || false,
-                    status: data.status || null,
-                });
-            } catch (error) {
-                console.error("Failed to check submission status:", error);
-            } finally {
-                setIsCheckingStatus(false);
-            }
-        };
-
-        checkSubmissionStatus();
-    }, []);
+    // Fetch form status using TanStack Query - same cache as navbar
+    const {
+        data: formStatus,
+        isLoading: isLoadingStatus,
+        isFetching,
+    } = useQuery({
+        queryKey: ["form-status"],
+        queryFn: fetchFormStatus,
+        staleTime: 1000 * 30, // 30 seconds - match navbar
+        refetchOnWindowFocus: true,
+    });
 
     // Inisialisasi TanStack Form
     const form = useForm({
@@ -140,7 +161,7 @@ export function FormClient() {
         onSubmit: async ({ value }) => {
             console.log("Form disubmit dengan nilai:", value);
             // Cek apakah user sudah pernah submit
-            if (submissionStatus.hasSubmitted) {
+            if (formStatus?.hasSubmitted) {
                 toast.error("Anda sudah pernah submit formulir", {
                     description:
                         "Setiap pengguna hanya dapat mengisi formulir sekali.",
@@ -148,7 +169,6 @@ export function FormClient() {
                 return;
             }
 
-            setIsLoading(true);
             try {
                 // Validasi form dengan Zod
                 const result = formSubmissionSchema.safeParse(value);
@@ -182,6 +202,11 @@ export function FormClient() {
                         "Data Anda akan diverifikasi oleh admin terlebih dahulu",
                 });
 
+                // Invalidate form-status query cache so navbar and this page update
+                await queryClient.invalidateQueries({
+                    queryKey: ["form-status"],
+                });
+
                 // Redirect ke halaman success
                 router.push("/form/success");
             } catch (error) {
@@ -189,62 +214,17 @@ export function FormClient() {
                 toast.error("Terjadi kesalahan", {
                     description: "Gagal menyimpan data. Silakan coba lagi.",
                 });
-            } finally {
-                setIsLoading(false);
             }
         },
     });
 
-    // Tampilkan skeleton saat cek status
-    if (isCheckingStatus) {
-        return (
-            <div className="container mx-auto py-8 px-4 max-w-5xl">
-                <Card>
-                    <CardHeader>
-                        <Skeleton className="h-8 w-3/4 mb-2" />
-                        <Skeleton className="h-4 w-full" />
-                    </CardHeader>
-                    <CardContent className="space-y-8">
-                        {/* Skeleton section */}
-                        {[1, 2, 3, 4, 5, 6].map((section) => (
-                            <div key={section} className="space-y-6">
-                                <div>
-                                    <Skeleton className="h-6 w-48 mb-1" />
-                                    <Skeleton className="h-4 w-64" />
-                                </div>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div className="space-y-2">
-                                        <Skeleton className="h-4 w-32" />
-                                        <Skeleton className="h-10 w-full" />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Skeleton className="h-4 w-32" />
-                                        <Skeleton className="h-10 w-full" />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Skeleton className="h-4 w-32" />
-                                        <Skeleton className="h-10 w-full" />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Skeleton className="h-4 w-32" />
-                                        <Skeleton className="h-10 w-full" />
-                                    </div>
-                                </div>
-                                {section < 6 && <Separator />}
-                            </div>
-                        ))}
-                        <div className="flex flex-col sm:flex-row gap-4 pt-6">
-                            <Skeleton className="h-10 flex-1" />
-                        </div>
-                        <Skeleton className="h-16 w-full" />
-                    </CardContent>
-                </Card>
-            </div>
-        );
+    // Show skeleton while loading status
+    if (isLoadingStatus) {
+        return <FormStatusSkeleton />;
     }
 
     // Tampilkan pesan jika user sudah submit
-    if (submissionStatus.hasSubmitted) {
+    if (formStatus?.hasSubmitted) {
         return (
             <div className="container mx-auto py-8 px-4 max-w-5xl">
                 <Card>
@@ -260,20 +240,23 @@ export function FormClient() {
                         <div className="bg-muted p-4 rounded-lg">
                             <p className="text-sm mb-2">
                                 <strong>Status:</strong>{" "}
-                                {submissionStatus.status === "submitted" && (
+                                {formStatus.status === "submitted" && (
                                     <span className="text-yellow-600">
                                         Menunggu Verifikasi
                                     </span>
                                 )}
-                                {submissionStatus.status === "verified" && (
+                                {formStatus.status === "verified" && (
                                     <span className="text-green-600">
                                         Terverifikasi
                                     </span>
                                 )}
-                                {submissionStatus.status === "rejected" && (
+                                {formStatus.status === "rejected" && (
                                     <span className="text-red-600">
                                         Ditolak
                                     </span>
+                                )}
+                                {isFetching && (
+                                    <Spinner className="inline-block ml-2 size-3" />
                                 )}
                             </p>
                             <p className="text-sm text-muted-foreground">
@@ -372,10 +355,10 @@ export function FormClient() {
                         <div className="flex flex-col sm:flex-row gap-4 pt-6">
                             <Button
                                 type="submit"
-                                disabled={isLoading}
+                                disabled={form.state.isSubmitting}
                                 className="flex-1 cursor-pointer"
                             >
-                                {isLoading ? (
+                                {form.state.isSubmitting ? (
                                     <>
                                         <Spinner className="mr-2" />
                                         Mengirim...

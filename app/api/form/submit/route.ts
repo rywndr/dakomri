@@ -1,20 +1,31 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse, connection } from "next/server";
+import { headers } from "next/headers";
+import { revalidatePath } from "next/cache";
 import { db } from "@/drizzle/db";
 import { formSubmission } from "@/drizzle/schema";
 import { formSubmissionSchema } from "@/lib/validations/form-validation";
 import { auth } from "@/lib/auth";
 import { nanoid } from "nanoid";
-import { revalidateFormStatus } from "@/lib/revalidate";
+import { eq } from "drizzle-orm";
+import {
+    revalidateFormStatus,
+    revalidateSubmissions,
+    revalidateStatistics,
+} from "@/lib/revalidate";
 
 /**
  * POST /api/form/submit
  * Submit formulir untuk verifikasi admin
+ * Revalidates caches setelah submission berhasil
  */
-export async function POST(req: NextRequest) {
+export async function POST(req: Request) {
+    // Opt into dynamic rendering
+    await connection();
+
     try {
         // Get current user
         const session = await auth.api.getSession({
-            headers: req.headers,
+            headers: await headers(),
         });
         const user = session?.user;
 
@@ -39,6 +50,42 @@ export async function POST(req: NextRequest) {
         }
 
         const data = validation.data;
+
+        // Check for duplicate NIK
+        const [duplicateNik] = await db
+            .select({ id: formSubmission.id })
+            .from(formSubmission)
+            .where(eq(formSubmission.nik, data.nik))
+            .limit(1);
+
+        if (duplicateNik) {
+            return NextResponse.json(
+                {
+                    error: "NIK sudah terdaftar",
+                    message:
+                        "NIK yang dimasukkan sudah digunakan. Setiap orang hanya dapat mengisi formulir satu kali.",
+                },
+                { status: 400 },
+            );
+        }
+
+        // Check for duplicate Nomor KK
+        const [duplicateKK] = await db
+            .select({ id: formSubmission.id })
+            .from(formSubmission)
+            .where(eq(formSubmission.nomorKK, data.nomorKK))
+            .limit(1);
+
+        if (duplicateKK) {
+            return NextResponse.json(
+                {
+                    error: "Nomor KK sudah terdaftar",
+                    message:
+                        "Nomor KK yang dimasukkan sudah digunakan. Setiap Kartu Keluarga hanya dapat digunakan satu kali.",
+                },
+                { status: 400 },
+            );
+        }
 
         // Generate ID unik
         const submissionId = nanoid();
@@ -130,10 +177,17 @@ export async function POST(req: NextRequest) {
         // Insert ke database
         await db.insert(formSubmission).values(submissionData);
 
-        // Revalidate cache untuk form status user ini
+        // Revalidate caches setelah submission berhasil
+        // 1. Revalidate form status untuk user ini
         if (user?.id) {
             await revalidateFormStatus(user.id);
         }
+        // 2. Revalidate admin submissions cache
+        await revalidateSubmissions();
+        // 3. Revalidate statistics (new submission affects stats)
+        await revalidateStatistics();
+        // 4. Revalidate form page path for immediate status refresh
+        revalidatePath("/form");
 
         return NextResponse.json(
             {
@@ -146,11 +200,40 @@ export async function POST(req: NextRequest) {
         );
     } catch (error) {
         console.error("Form submission error:", error);
+
+        // Handle unique constraint violation from database
+        const errorMessage =
+            error instanceof Error ? error.message : "Unknown error";
+        if (
+            errorMessage.includes("unique") ||
+            errorMessage.includes("duplicate")
+        ) {
+            if (errorMessage.includes("nik")) {
+                return NextResponse.json(
+                    {
+                        error: "NIK sudah terdaftar",
+                        message:
+                            "NIK yang dimasukkan sudah digunakan. Setiap orang hanya dapat mengisi formulir satu kali.",
+                    },
+                    { status: 400 },
+                );
+            }
+            if (errorMessage.includes("nomor_kk")) {
+                return NextResponse.json(
+                    {
+                        error: "Nomor KK sudah terdaftar",
+                        message:
+                            "Nomor KK yang dimasukkan sudah digunakan. Setiap Kartu Keluarga hanya dapat digunakan satu kali.",
+                    },
+                    { status: 400 },
+                );
+            }
+        }
+
         return NextResponse.json(
             {
                 error: "Terjadi kesalahan saat menyimpan formulir",
-                details:
-                    error instanceof Error ? error.message : "Unknown error",
+                details: errorMessage,
             },
             { status: 500 },
         );

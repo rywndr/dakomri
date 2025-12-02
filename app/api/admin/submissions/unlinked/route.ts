@@ -1,14 +1,18 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse, connection } from "next/server";
+import { headers } from "next/headers";
 import { db } from "@/drizzle/db";
 import { formSubmission } from "@/drizzle/schema";
 import { auth } from "@/lib/auth";
 import { isNull, desc } from "drizzle-orm";
 
-export async function GET(req: NextRequest) {
+export async function GET() {
+    // Opt into dynamic rendering
+    await connection();
+
     try {
         // Get current admin session
         const session = await auth.api.getSession({
-            headers: req.headers,
+            headers: await headers(),
         });
 
         // Verify admin access

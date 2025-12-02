@@ -7,16 +7,19 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { MarkdownEditor } from "@/components/kegiatan/markdown-editor";
-import {
-    createPost,
-    updatePost,
-    getPostByIdAction,
-    PostInput,
-} from "@/app/actions/posts";
 import { toast } from "sonner";
 import { ArrowLeft, Loader2, Save, Eye } from "lucide-react";
 import Link from "next/link";
 import { Separator } from "@/components/ui/separator";
+
+/**
+ * Interface untuk data form post
+ */
+interface PostInput {
+    title: string;
+    content: string;
+    published: "draft" | "published";
+}
 
 function WritePageContent() {
     const router = useRouter();
@@ -33,12 +36,13 @@ function WritePageContent() {
     });
 
     /**
-     * Load post data jika dalam mode edit
+     * Load post data jika dalam mode edit via API
      */
     useEffect(() => {
         if (editId) {
             setIsLoading(true);
-            getPostByIdAction(editId)
+            fetch(`/api/posts?id=${editId}`)
+                .then((res) => res.json())
                 .then((result) => {
                     if (result.success && result.post) {
                         setFormData({
@@ -65,7 +69,7 @@ function WritePageContent() {
     }, [editId, router]);
 
     /**
-     * Handler untuk save post
+     * Handler untuk save post via API
      */
     const handleSave = async (publish: boolean = false) => {
         // Validasi
@@ -87,17 +91,31 @@ function WritePageContent() {
                 published: publish ? "published" : formData.published,
             };
 
-            let result;
+            let response;
 
             if (isEdit && editId) {
-                // Update post yang sudah ada
-                result = await updatePost(editId, dataToSave);
+                // Update post yang sudah ada via API
+                response = await fetch(`/api/posts/${editId}`, {
+                    method: "PUT",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify(dataToSave),
+                });
             } else {
-                // Create post baru
-                result = await createPost(dataToSave);
+                // Create post baru via API
+                response = await fetch("/api/posts", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify(dataToSave),
+                });
             }
 
-            if (result.success) {
+            const result = await response.json();
+
+            if (response.ok && result.success) {
                 toast.success(result.message);
                 router.push("/kegiatan");
                 router.refresh();

@@ -1,15 +1,18 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest, NextResponse, connection } from "next/server";
 import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
 import { db } from "@/drizzle/db";
 import { formSubmission } from "@/drizzle/schema";
 import { formSubmissionSchema } from "@/lib/validations/form-validation";
-import { eq } from "drizzle-orm";
+import { eq, and, ne } from "drizzle-orm";
 
 export async function PUT(
     request: NextRequest,
     { params }: { params: Promise<{ id: string }> },
 ) {
+    // Opt into dynamic rendering
+    await connection();
+
     try {
         // Check if user is authenticated and is an admin
         const session = await auth.api.getSession({
@@ -58,6 +61,52 @@ export async function PUT(
             return NextResponse.json(
                 { error: "Submission not found" },
                 { status: 404 },
+            );
+        }
+
+        // Check for duplicate NIK (excluding current submission)
+        const [duplicateNik] = await db
+            .select({ id: formSubmission.id })
+            .from(formSubmission)
+            .where(
+                and(
+                    eq(formSubmission.nik, data.nik),
+                    ne(formSubmission.id, id),
+                ),
+            )
+            .limit(1);
+
+        if (duplicateNik) {
+            return NextResponse.json(
+                {
+                    error: "NIK sudah terdaftar",
+                    message:
+                        "NIK yang dimasukkan sudah digunakan oleh submission lain.",
+                },
+                { status: 400 },
+            );
+        }
+
+        // Check for duplicate Nomor KK (excluding current submission)
+        const [duplicateKK] = await db
+            .select({ id: formSubmission.id })
+            .from(formSubmission)
+            .where(
+                and(
+                    eq(formSubmission.nomorKK, data.nomorKK),
+                    ne(formSubmission.id, id),
+                ),
+            )
+            .limit(1);
+
+        if (duplicateKK) {
+            return NextResponse.json(
+                {
+                    error: "Nomor KK sudah terdaftar",
+                    message:
+                        "Nomor KK yang dimasukkan sudah digunakan oleh submission lain.",
+                },
+                { status: 400 },
             );
         }
 
@@ -193,11 +242,40 @@ export async function PUT(
         );
     } catch (error) {
         console.error("Submission update error:", error);
+
+        // Handle unique constraint violation from database
+        const errorMessage =
+            error instanceof Error ? error.message : "Unknown error";
+        if (
+            errorMessage.includes("unique") ||
+            errorMessage.includes("duplicate")
+        ) {
+            if (errorMessage.includes("nik")) {
+                return NextResponse.json(
+                    {
+                        error: "NIK sudah terdaftar",
+                        message:
+                            "NIK yang dimasukkan sudah digunakan oleh submission lain.",
+                    },
+                    { status: 400 },
+                );
+            }
+            if (errorMessage.includes("nomor_kk")) {
+                return NextResponse.json(
+                    {
+                        error: "Nomor KK sudah terdaftar",
+                        message:
+                            "Nomor KK yang dimasukkan sudah digunakan oleh submission lain.",
+                    },
+                    { status: 400 },
+                );
+            }
+        }
+
         return NextResponse.json(
             {
                 error: "Terjadi kesalahan saat memperbarui submission",
-                details:
-                    error instanceof Error ? error.message : "Unknown error",
+                details: errorMessage,
             },
             { status: 500 },
         );

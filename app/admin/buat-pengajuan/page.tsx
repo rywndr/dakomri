@@ -1,9 +1,34 @@
+import { Suspense } from "react";
 import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
 import { SubmissionEntryWrapper } from "@/components/admin/submission-entry/submission-entry-wrapper";
+import { Skeleton } from "@/components/ui/skeleton";
 
-export default async function BuatPengajuanPage() {
-    // get admin status
+function BuatPengajuanSkeleton() {
+    return (
+        <div className="space-y-6 p-6">
+            <div className="space-y-2">
+                <Skeleton className="h-8 w-64" />
+                <Skeleton className="h-4 w-96" />
+            </div>
+            <div className="space-y-4">
+                {[1, 2, 3, 4, 5].map((i) => (
+                    <div key={i} className="space-y-2">
+                        <Skeleton className="h-4 w-32" />
+                        <Skeleton className="h-10 w-full" />
+                    </div>
+                ))}
+            </div>
+        </div>
+    );
+}
+
+/**
+ * Server component untuk authenticated buat pengajuan content
+ * Wrapped in Suspense karena menggunakan headers()
+ */
+async function AuthenticatedBuatPengajuanContent() {
+    // Get admin status - uses headers() which requires Suspense
     const session = await auth.api.getSession({
         headers: await headers(),
     });
@@ -13,4 +38,16 @@ export default async function BuatPengajuanPage() {
     }
 
     return <SubmissionEntryWrapper />;
+}
+
+/**
+ * Halaman Buat Pengajuan untuk Admin
+ * Menggunakan Suspense boundary untuk dynamic content yang membutuhkan headers()
+ */
+export default function BuatPengajuanPage() {
+    return (
+        <Suspense fallback={<BuatPengajuanSkeleton />}>
+            <AuthenticatedBuatPengajuanContent />
+        </Suspense>
+    );
 }

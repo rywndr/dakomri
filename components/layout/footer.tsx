@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import LogoPKBI from "@/public/pkbi.png";
 import LogoSTTI from "@/public/stti.png";
+import { CopyrightYear } from "./copyright-year";
 
 export function Footer() {
     return (
@@ -173,8 +174,8 @@ export function Footer() {
                 <div className="mt-12 border-t pt-8">
                     <div className="flex flex-col items-center justify-between gap-4 text-sm text-muted-foreground md:flex-row">
                         <p>
-                            &copy; {new Date().getFullYear()} DAKOMRI. All
-                            rights reserved.
+                            &copy; <CopyrightYear /> DAKOMRI. All rights
+                            reserved.
                         </p>
                         <div className="flex gap-6">
                             <Link

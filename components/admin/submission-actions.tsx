@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useQueryClient } from "@tanstack/react-query";
 import {
     MoreHorizontal,
     CheckCircle,
@@ -46,6 +47,7 @@ export function SubmissionActions({
     rejectionReason,
 }: SubmissionActionsProps) {
     const router = useRouter();
+    const queryClient = useQueryClient();
     const [isApproveDialogOpen, setIsApproveDialogOpen] = useState(false);
     const [isRejectDialogOpen, setIsRejectDialogOpen] = useState(false);
     const [isReasonDialogOpen, setIsReasonDialogOpen] = useState(false);
@@ -75,6 +77,9 @@ export function SubmissionActions({
             toast.success("Submission berhasil disetujui", {
                 description: `Formulir ${submitterName} telah diverifikasi`,
             });
+
+            // Invalidate form-status query cache so user's navbar updates
+            await queryClient.invalidateQueries({ queryKey: ["form-status"] });
 
             setIsApproveDialogOpen(false);
             setAdminNotes("");
@@ -118,6 +123,9 @@ export function SubmissionActions({
                 description: `Formulir ${submitterName} telah ditolak`,
             });
 
+            // Invalidate form-status query cache so user's navbar updates
+            await queryClient.invalidateQueries({ queryKey: ["form-status"] });
+
             setIsRejectDialogOpen(false);
             setRejectReason("");
             setAdminNotes("");
@@ -151,6 +159,9 @@ export function SubmissionActions({
             toast.success("Submission berhasil dihapus", {
                 description: `Formulir ${submitterName} telah dihapus dari sistem`,
             });
+
+            // Invalidate form-status query cache so user's navbar updates
+            await queryClient.invalidateQueries({ queryKey: ["form-status"] });
 
             setIsDeleteDialogOpen(false);
             router.refresh();

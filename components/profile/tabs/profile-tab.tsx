@@ -47,6 +47,14 @@ export function ProfileTab({ user }: ProfileTabProps) {
                 name: name.trim(),
             });
 
+            await fetch("/api/user/revalidate-info", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ userId: user.id }),
+            });
+
             toast.success("Profil berhasil diperbarui");
             router.refresh();
         } catch (error) {

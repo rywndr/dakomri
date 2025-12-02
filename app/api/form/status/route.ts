@@ -1,21 +1,21 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse, connection } from "next/server";
+import { headers } from "next/headers";
 import { db } from "@/drizzle/db";
 import { formSubmission } from "@/drizzle/schema";
 import { auth } from "@/lib/auth";
 import { eq, and, or } from "drizzle-orm";
 
-// mark as dynamic coz using req headesr
-export const dynamic = "force-dynamic";
-
 /**
  * GET /api/form/status
  * Get the current user's form submission status
  */
-export async function GET(req: NextRequest) {
+export async function GET() {
+    await connection();
+
     try {
         // Get current user session
         const session = await auth.api.getSession({
-            headers: req.headers,
+            headers: await headers(),
         });
 
         if (!session?.user) {

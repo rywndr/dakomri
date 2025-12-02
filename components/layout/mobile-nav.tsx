@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
 import Image from "next/image";
 import { Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -12,6 +11,7 @@ import {
     SheetTitle,
     SheetTrigger,
 } from "@/components/ui/sheet";
+import { NavLinks } from "./nav-links";
 import Logo from "@/public/pkbi.png";
 
 interface MobileNavProps {
@@ -19,27 +19,15 @@ interface MobileNavProps {
 }
 
 /**
- * Mobile navigation menggunakan Sheet (drawer)
- * Client component karena memerlukan state untuk toggle
+ * MobileNav - Mobile navigation using Sheet (drawer)
+ * Uses NavLinks component for consistent navigation
  */
 export function MobileNav({ isAdmin = false }: MobileNavProps) {
     const [isOpen, setIsOpen] = useState(false);
 
-    // Close sheet saat link diklik
     const handleLinkClick = () => {
         setIsOpen(false);
     };
-
-    const navLinks = [
-        { href: "/", label: "Home" },
-        { href: "/statistik", label: "Statistik" },
-        { href: "/form", label: "Form" },
-        { href: "/kegiatan", label: "Kegiatan" },
-    ];
-
-    if (isAdmin) {
-        navLinks.push({ href: "/admin", label: "Admin" });
-    }
 
     return (
         <Sheet open={isOpen} onOpenChange={setIsOpen}>
@@ -53,7 +41,7 @@ export function MobileNav({ isAdmin = false }: MobileNavProps) {
                     <Menu className="h-5 w-5" />
                 </Button>
             </SheetTrigger>
-            <SheetContent side="left" className="w-[300px] sm:w-[400px]">
+            <SheetContent side="left" className="w-[300px] sm:w-[350px]">
                 <SheetHeader>
                     <SheetTitle className="flex items-center gap-3">
                         <Image
@@ -67,18 +55,13 @@ export function MobileNav({ isAdmin = false }: MobileNavProps) {
                     </SheetTitle>
                 </SheetHeader>
 
-                <nav className="flex flex-col gap-2">
-                    {navLinks.map((link) => (
-                        <Link
-                            key={link.href}
-                            href={link.href}
-                            onClick={handleLinkClick}
-                            className="rounded-md px-4 py-3 text-sm font-medium transition-colors hover:bg-muted"
-                        >
-                            {link.label}
-                        </Link>
-                    ))}
-                </nav>
+                <div className="mt-6">
+                    <NavLinks
+                        isAdmin={isAdmin}
+                        variant="mobile"
+                        onLinkClick={handleLinkClick}
+                    />
+                </div>
             </SheetContent>
         </Sheet>
     );

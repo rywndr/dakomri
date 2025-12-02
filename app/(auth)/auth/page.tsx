@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { SignInForm, SignUpForm } from "@/components/auth/auth-forms";
 import {
     Card,
@@ -7,7 +8,27 @@ import {
     CardTitle,
 } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Skeleton } from "@/components/ui/skeleton";
 import Image from "next/image";
+
+/**
+ * Skeleton for auth form loading state
+ */
+function AuthFormSkeleton() {
+    return (
+        <div className="space-y-4">
+            <div className="space-y-2">
+                <Skeleton className="h-4 w-16" />
+                <Skeleton className="h-10 w-full" />
+            </div>
+            <div className="space-y-2">
+                <Skeleton className="h-4 w-20" />
+                <Skeleton className="h-10 w-full" />
+            </div>
+            <Skeleton className="h-10 w-full" />
+        </div>
+    );
+}
 
 export default function AuthPage() {
     return (
@@ -38,10 +59,14 @@ export default function AuthPage() {
                                 <TabsTrigger value="signup">Daftar</TabsTrigger>
                             </TabsList>
                             <TabsContent value="signin" className="mt-6">
-                                <SignInForm />
+                                <Suspense fallback={<AuthFormSkeleton />}>
+                                    <SignInForm />
+                                </Suspense>
                             </TabsContent>
                             <TabsContent value="signup" className="mt-6">
-                                <SignUpForm />
+                                <Suspense fallback={<AuthFormSkeleton />}>
+                                    <SignUpForm />
+                                </Suspense>
                             </TabsContent>
                         </Tabs>
                     </CardContent>

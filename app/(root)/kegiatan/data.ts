@@ -1,3 +1,4 @@
+import { cacheLife, cacheTag } from "next/cache";
 import { db } from "@/drizzle/db";
 import { posts } from "@/drizzle/schema";
 import { desc, ilike, or, eq, and } from "drizzle-orm";
@@ -11,6 +12,8 @@ export interface PaginatedPosts {
 
 /**
  * Fetch posts dengan pagination dan search
+ * Menggunakan use cache dengan cacheLife 'hours' untuk caching
+ *
  * @param page - Nomor halaman (1-based)
  * @param limit - Jumlah item per halaman
  * @param search - Query pencarian (opsional)
@@ -22,6 +25,10 @@ export async function getPosts(
     search?: string,
     includeUnpublished: boolean = false,
 ): Promise<PaginatedPosts> {
+    "use cache";
+    cacheLife("hours");
+    cacheTag("posts", `posts-page-${page}`);
+
     const offset = (page - 1) * limit;
 
     // Build where conditions
@@ -73,24 +80,38 @@ export async function getPosts(
 
 /**
  * Fetch single post by ID
+ * Cached dengan cacheTag untuk revalidation per post
+ *
  * @param id - Post ID
  */
 export async function getPostById(id: string) {
+    "use cache";
+    cacheLife("hours");
+    cacheTag(`post-${id}`, "posts");
+
     const result = await db.select().from(posts).where(eq(posts.id, id));
     return result[0] || null;
 }
 
 /**
  * Fetch single post by slug
+ * Cached dengan cacheTag untuk revalidation per post
+ *
  * @param slug - Post slug
  */
 export async function getPostBySlug(slug: string) {
+    "use cache";
+    cacheLife("hours");
+    cacheTag(`post-slug-${slug}`, "posts");
+
     const result = await db.select().from(posts).where(eq(posts.slug, slug));
     return result[0] || null;
 }
 
 /**
  * Check apakah slug sudah digunakan
+ * Tidak di-cache karena perlu real-time check
+ *
  * @param slug - Slug yang akan dicek
  * @param excludeId - ID post yang dikecualikan (untuk edit)
  */

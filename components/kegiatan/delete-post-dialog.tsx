@@ -11,7 +11,6 @@ import {
     AlertDialogHeader,
     AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { deletePost } from "@/app/actions/posts";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 import type { Post } from "@/drizzle/schema";
@@ -23,6 +22,10 @@ interface DeletePostDialogProps {
     onSuccess?: () => void;
 }
 
+/**
+ * Dialog konfirmasi untuk menghapus post
+ * Menggunakan API route untuk delete
+ */
 export function DeletePostDialog({
     open,
     onOpenChange,
@@ -32,7 +35,7 @@ export function DeletePostDialog({
     const [isDeleting, setIsDeleting] = useState(false);
 
     /**
-     * Handler untuk konfirmasi delete
+     * Handler untuk konfirmasi delete via API
      */
     const handleDelete = async () => {
         if (!post) return;
@@ -40,9 +43,13 @@ export function DeletePostDialog({
         setIsDeleting(true);
 
         try {
-            const result = await deletePost(post.id);
+            const response = await fetch(`/api/posts/${post.id}`, {
+                method: "DELETE",
+            });
 
-            if (result.success) {
+            const result = await response.json();
+
+            if (response.ok && result.success) {
                 toast.success(result.message);
                 onOpenChange(false);
                 onSuccess?.();

@@ -1,8 +1,10 @@
+import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import { getPostBySlug } from "../data";
 import { MarkdownRenderer } from "@/components/kegiatan/markdown-renderer";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
 import { ArrowLeft, Edit, Calendar } from "lucide-react";
 import Link from "next/link";
 import { format } from "date-fns";
@@ -17,10 +19,121 @@ interface PostPageProps {
     }>;
 }
 
-export default async function PostPage({ params }: PostPageProps) {
-    const { slug } = await params;
+function PostPageSkeleton() {
+    return (
+        <div className="min-h-screen bg-background">
+            <header className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur">
+                <div className="container mx-auto px-4">
+                    <div className="flex items-center justify-between h-16">
+                        <Skeleton className="h-9 w-40" />
+                        <Skeleton className="h-9 w-20" />
+                    </div>
+                </div>
+            </header>
 
-    // Fetch post berdasarkan slug
+            <main className="container mx-auto px-4 py-12">
+                <article className="max-w-3xl mx-auto">
+                    <header className="mb-12 space-y-6">
+                        <Skeleton className="h-12 w-3/4" />
+                        <Skeleton className="h-4 w-48" />
+                        <Separator />
+                    </header>
+                    <div className="space-y-4">
+                        <Skeleton className="h-4 w-full" />
+                        <Skeleton className="h-4 w-full" />
+                        <Skeleton className="h-4 w-3/4" />
+                        <Skeleton className="h-4 w-full" />
+                        <Skeleton className="h-4 w-5/6" />
+                    </div>
+                </article>
+            </main>
+        </div>
+    );
+}
+
+function formatDate(date: Date): string {
+    try {
+        return format(new Date(date), "d MMMM yyyy", { locale: localeId });
+    } catch {
+        return format(new Date(date), "d MMMM yyyy");
+    }
+}
+
+/**
+ * Server component untuk admin controls
+ */
+async function AdminControls({ postId }: { postId: string }) {
+    const session = await auth.api.getSession({
+        headers: await headers(),
+    });
+    const isAdmin = session?.user?.role === "admin";
+
+    if (!isAdmin) return null;
+
+    return (
+        <Link href={`/kegiatan/write?edit=${postId}`}>
+            <Button variant="outline" size="sm" className="gap-2">
+                <Edit className="h-4 w-4" />
+                Edit
+            </Button>
+        </Link>
+    );
+}
+
+/**
+ * Server component untuk draft badge
+ */
+async function DraftBadge({ published }: { published: string }) {
+    const session = await auth.api.getSession({
+        headers: await headers(),
+    });
+    const isAdmin = session?.user?.role === "admin";
+
+    if (!isAdmin || published !== "draft") return null;
+
+    return (
+        <div>
+            <Badge variant="secondary" className="text-sm">
+                Draft - Tidak Dipublikasikan
+            </Badge>
+        </div>
+    );
+}
+
+/**
+ * Server component untuk footer admin controls
+ */
+async function FooterAdminControls({ postId }: { postId: string }) {
+    const session = await auth.api.getSession({
+        headers: await headers(),
+    });
+    const isAdmin = session?.user?.role === "admin";
+
+    if (!isAdmin) return null;
+
+    return (
+        <Link href={`/kegiatan/write?edit=${postId}`}>
+            <Button variant="outline" size="sm" className="gap-2">
+                <Edit className="h-4 w-4" />
+                Edit Post
+            </Button>
+        </Link>
+    );
+}
+
+/**
+ * Server component untuk seluruh page content
+ * Semua uncached data access (headers, auth, params, dll) dilakukan di dalam komponen ini
+ * yang di-wrap dengan Suspense di parent
+ */
+async function PostPageContent({
+    params,
+}: {
+    params: Promise<{ slug: string }>;
+}) {
+    // Await params inside Suspense boundary
+    const { slug } = await params;
+    // Fetch post berdasarkan slug - ini cached dengan use cache
     const post = await getPostBySlug(slug);
 
     // Jika post tidak ditemukan, tampilkan 404
@@ -28,31 +141,21 @@ export default async function PostPage({ params }: PostPageProps) {
         notFound();
     }
 
-    // Cek apakah user adalah admin
-    const session = await auth.api.getSession({
-        headers: await headers(),
-    });
-    const isAdmin = session?.user?.role === "admin";
+    // Access check untuk draft posts - menggunakan headers() yang memerlukan Suspense
+    if (post.published !== "published") {
+        const session = await auth.api.getSession({
+            headers: await headers(),
+        });
+        const isAdmin = session?.user?.role === "admin";
 
-    // Jika post adalah draft dan user bukan admin, tampilkan 404
-    if (post.published !== "published" && !isAdmin) {
-        notFound();
-    }
-
-    /**
-     * Format tanggal ke format Indonesia
-     */
-    const formatDate = (date: Date): string => {
-        try {
-            return format(new Date(date), "d MMMM yyyy", { locale: localeId });
-        } catch {
-            return format(new Date(date), "d MMMM yyyy");
+        if (!isAdmin) {
+            notFound();
         }
-    };
+    }
 
     return (
         <div className="min-h-screen bg-background">
-            {/*  Sticky nav */}
+            {/* Sticky nav */}
             <header className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60">
                 <div className="container mx-auto px-4">
                     <div className="flex items-center justify-between h-16">
@@ -64,19 +167,9 @@ export default async function PostPage({ params }: PostPageProps) {
                             </Button>
                         </Link>
 
-                        {/* Edit Button Admin */}
-                        {isAdmin && (
-                            <Link href={`/kegiatan/write?edit=${post.id}`}>
-                                <Button
-                                    variant="outline"
-                                    size="sm"
-                                    className="gap-2"
-                                >
-                                    <Edit className="h-4 w-4" />
-                                    Edit
-                                </Button>
-                            </Link>
-                        )}
+                        <Suspense fallback={<Skeleton className="h-9 w-20" />}>
+                            <AdminControls postId={post.id} />
+                        </Suspense>
                     </div>
                 </div>
             </header>
@@ -86,14 +179,9 @@ export default async function PostPage({ params }: PostPageProps) {
                 <article className="max-w-3xl mx-auto">
                     {/* Article Header */}
                     <header className="mb-12 space-y-6">
-                        {/* status if draft */}
-                        {isAdmin && post.published === "draft" && (
-                            <div>
-                                <Badge variant="secondary" className="text-sm">
-                                    Draft - Tidak Dipublikasikan
-                                </Badge>
-                            </div>
-                        )}
+                        <Suspense fallback={null}>
+                            <DraftBadge published={post.published} />
+                        </Suspense>
 
                         {/* Title */}
                         <h1 className="text-4xl md:text-5xl font-bold leading-tight text-foreground">
@@ -142,22 +230,26 @@ export default async function PostPage({ params }: PostPageProps) {
                                 </Button>
                             </Link>
 
-                            {isAdmin && (
-                                <Link href={`/kegiatan/write?edit=${post.id}`}>
-                                    <Button
-                                        variant="outline"
-                                        size="sm"
-                                        className="gap-2"
-                                    >
-                                        <Edit className="h-4 w-4" />
-                                        Edit Post
-                                    </Button>
-                                </Link>
-                            )}
+                            {/* Footer admin controls - wrapped in Suspense */}
+                            <Suspense fallback={null}>
+                                <FooterAdminControls postId={post.id} />
+                            </Suspense>
                         </div>
                     </footer>
                 </article>
             </main>
         </div>
+    );
+}
+
+/**
+ * Halaman detail Kegiatan/Post
+ * Menggunakan Suspense boundary untuk SEMUA dynamic content termasuk params access
+ */
+export default function PostPage({ params }: PostPageProps) {
+    return (
+        <Suspense fallback={<PostPageSkeleton />}>
+            <PostPageContent params={params} />
+        </Suspense>
     );
 }

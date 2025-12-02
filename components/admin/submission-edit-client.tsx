@@ -72,13 +72,27 @@ export function SubmissionEditClient({
     const toUndefined = <T,>(value: T | null | undefined): T | undefined =>
         value === null ? undefined : value;
 
+    // Helper to convert ISO string to Date object (for serialized dates from server)
+    const toDate = (
+        value: string | Date | null | undefined,
+    ): Date | undefined => {
+        if (!value) return undefined;
+        if (value instanceof Date) return value;
+        // Handle ISO string from server serialization
+        const date = new Date(value);
+        return isNaN(date.getTime()) ? undefined : date;
+    };
+
     const defaultValues: FormData = {
         // Section 1: Data Pribadi
         namaDepan: initialData.namaDepan || "",
         namaBelakang: toUndefined(initialData.namaBelakang),
         namaAlias: toUndefined(initialData.namaAlias),
         tempatLahir: toUndefined(initialData.tempatLahir),
-        tanggalLahir: toUndefined(initialData.tanggalLahir),
+        // Convert ISO string back to Date object (server serializes Date to string)
+        tanggalLahir: toDate(
+            initialData.tanggalLahir as string | Date | null | undefined,
+        ),
         usia: toUndefined(initialData.usia),
         jenisKelamin: toUndefined(initialData.jenisKelamin) as
             | JenisKelamin
@@ -172,10 +186,26 @@ export function SubmissionEditClient({
 
                 if (!result.success) {
                     const errors = result.error.errors;
-                    toast.error("Validasi gagal", {
-                        description: `Ada ${errors.length} kesalahan dalam form. Silakan periksa kembali.`,
+                    console.error("=== VALIDATION ERRORS ===");
+                    errors.forEach((err, idx) => {
+                        console.error(`Error ${idx + 1}:`, {
+                            path: err.path.join("."),
+                            message: err.message,
+                            code: err.code,
+                            received:
+                                "received" in err ? err.received : undefined,
+                        });
                     });
-                    console.error("Validation errors:", errors);
+                    console.error("Form value being validated:", value);
+                    console.error("=========================");
+
+                    // Show user-friendly toast with field names
+                    const errorFields = errors
+                        .map((e) => e.path.join("."))
+                        .join(", ");
+                    toast.error("Validasi gagal", {
+                        description: `Kesalahan pada field: ${errorFields}`,
+                    });
                     return;
                 }
 

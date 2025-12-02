@@ -19,7 +19,10 @@ interface KegiatanPageProps {
     searchParams: Promise<SearchParams>;
 }
 
-function PostsLoading() {
+/**
+ * Skeleton loading untuk Posts Grid
+ */
+function PostsGridSkeleton() {
     return (
         <div className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -33,7 +36,26 @@ function PostsLoading() {
     );
 }
 
-async function PostsContent({ searchParams }: { searchParams: SearchParams }) {
+/**
+ * Skeleton loading untuk Search Bar
+ */
+function SearchSkeleton() {
+    return <Skeleton className="h-10 w-full rounded-md" />;
+}
+
+/**
+ * Server component untuk konten posts dengan caching
+ * Data di-fetch dari cached getPosts function
+ * searchParams diakses di dalam komponen ini agar berada dalam Suspense boundary
+ */
+async function PostsContent({
+    searchParamsPromise,
+}: {
+    searchParamsPromise: Promise<SearchParams>;
+}) {
+    // Await searchParams di dalam Suspense boundary
+    const searchParams = await searchParamsPromise;
+
     // Parse query params
     const page = parseInt(searchParams.page || "1");
     const search = searchParams.search || "";
@@ -45,7 +67,7 @@ async function PostsContent({ searchParams }: { searchParams: SearchParams }) {
     });
     const isAdmin = session?.user?.role === "admin";
 
-    // Fetch posts
+    // Fetch posts - menggunakan cached function
     const { posts, totalPages, currentPage } = await getPosts(
         page,
         limit,
@@ -63,15 +85,16 @@ async function PostsContent({ searchParams }: { searchParams: SearchParams }) {
     );
 }
 
-export default async function KegiatanPage({
-    searchParams,
-}: KegiatanPageProps) {
-    const params = await searchParams;
-
+/**
+ * Halaman Kegiatan dengan Suspense boundaries
+ * Menggunakan cached data dari data.ts
+ * searchParams Promise di-pass ke child component untuk diakses dalam Suspense
+ */
+export default function KegiatanPage({ searchParams }: KegiatanPageProps) {
     return (
         <div className="min-h-screen bg-background">
             <div className="container mx-auto px-4 py-12 space-y-10">
-                {/* Header */}
+                {/* Header - static content */}
                 <div className="max-w-3xl mx-auto text-center space-y-4">
                     <h1 className="text-4xl md:text-5xl font-bold tracking-tight">
                         Kegiatan
@@ -82,20 +105,20 @@ export default async function KegiatanPage({
                     </p>
                 </div>
 
-                {/* Search Bar */}
+                {/* Search Bar - client component */}
                 <div className="max-w-2xl mx-auto">
-                    <PostsSearch
-                        placeholder="Cari kegiatan berdasarkan judul atau konten..."
-                        className="w-full"
-                    />
+                    <Suspense fallback={<SearchSkeleton />}>
+                        <PostsSearch
+                            placeholder="Cari kegiatan berdasarkan judul atau konten..."
+                            className="w-full"
+                        />
+                    </Suspense>
                 </div>
 
                 {/* Posts List dengan Suspense untuk loading state */}
-                <Suspense
-                    key={JSON.stringify(params)}
-                    fallback={<PostsLoading />}
-                >
-                    <PostsContent searchParams={params} />
+                {/* searchParams Promise di-pass langsung tanpa await di level page */}
+                <Suspense fallback={<PostsGridSkeleton />}>
+                    <PostsContent searchParamsPromise={searchParams} />
                 </Suspense>
             </div>
         </div>

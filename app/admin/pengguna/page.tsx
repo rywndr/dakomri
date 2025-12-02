@@ -1,8 +1,9 @@
+import { Suspense } from "react";
 import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
 import { db } from "@/drizzle/db";
 import { user, formSubmission } from "@/drizzle/schema";
-import { ilike, or, count, asc, eq, and, sql } from "drizzle-orm";
+import { ilike, or, count, asc, eq, and } from "drizzle-orm";
 import {
     Card,
     CardContent,
@@ -19,6 +20,7 @@ import {
     TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
 import { UserActions } from "@/components/admin/user-actions";
 import { PaginationControls } from "@/components/admin/pagination-controls";
 import { AdminSearch } from "@/components/admin/admin-search";
@@ -34,8 +36,91 @@ interface PageProps {
     }>;
 }
 
-export default async function PenggunaPage({ searchParams }: PageProps) {
-    // Verify admin access
+interface SearchParams {
+    page?: string;
+    search?: string;
+    role?: string;
+    status?: string;
+}
+
+function StatsCardsSkeleton() {
+    return (
+        <div className="grid gap-4 md:grid-cols-3">
+            {[1, 2, 3].map((i) => (
+                <Card key={i}>
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <Skeleton className="h-4 w-24" />
+                        <Skeleton className="h-4 w-4" />
+                    </CardHeader>
+                    <CardContent>
+                        <Skeleton className="h-8 w-12 mb-1" />
+                        <Skeleton className="h-3 w-20" />
+                    </CardContent>
+                </Card>
+            ))}
+        </div>
+    );
+}
+
+/**
+ * Skeleton untuk tabel pengguna
+ */
+function UsersTableSkeleton() {
+    return (
+        <Card>
+            <CardHeader>
+                <Skeleton className="h-6 w-40 mb-2" />
+                <Skeleton className="h-4 w-64" />
+                <div className="mt-4 flex flex-col gap-4 sm:flex-row">
+                    <Skeleton className="h-10 w-full sm:w-48" />
+                    <Skeleton className="h-10 w-full sm:w-48" />
+                </div>
+                <div className="mt-4">
+                    <Skeleton className="h-10 w-full" />
+                </div>
+            </CardHeader>
+            <CardContent>
+                <div className="space-y-3">
+                    {[1, 2, 3, 4, 5].map((i) => (
+                        <Skeleton key={i} className="h-16 w-full" />
+                    ))}
+                </div>
+            </CardContent>
+        </Card>
+    );
+}
+
+/**
+ * Skeleton untuk seluruh halaman
+ */
+function PageSkeleton() {
+    return (
+        <div className="flex flex-1 flex-col gap-4">
+            <div className="flex items-center justify-between">
+                <div className="space-y-2">
+                    <Skeleton className="h-9 w-32" />
+                    <Skeleton className="h-4 w-56" />
+                </div>
+            </div>
+            <StatsCardsSkeleton />
+            <UsersTableSkeleton />
+        </div>
+    );
+}
+
+/**
+ * Server component untuk authenticated pengguna content
+ * Wrapped in Suspense karena menggunakan headers()
+ */
+async function AuthenticatedPenggunaContent({
+    searchParams,
+}: {
+    searchParams: Promise<SearchParams>;
+}) {
+    // Await searchParams inside Suspense boundary
+    const params = await searchParams;
+
+    // Verify admin access - uses headers() which requires Suspense
     const session = await auth.api.getSession({
         headers: await headers(),
     });
@@ -44,7 +129,6 @@ export default async function PenggunaPage({ searchParams }: PageProps) {
         throw new Error("Unauthorized");
     }
 
-    const params = await searchParams;
     const currentPage = parseInt(params.page || "1", 10);
     const searchQuery = params.search || "";
     const roleFilter = params.role || "all";
@@ -331,5 +415,18 @@ export default async function PenggunaPage({ searchParams }: PageProps) {
                 </CardContent>
             </Card>
         </div>
+    );
+}
+
+/**
+ * Halaman Admin Pengguna
+ * Menggunakan Suspense boundary untuk dynamic content yang membutuhkan headers()
+ * searchParams diakses di dalam Suspense untuk menghindari blocking route
+ */
+export default function PenggunaPage({ searchParams }: PageProps) {
+    return (
+        <Suspense fallback={<PageSkeleton />}>
+            <AuthenticatedPenggunaContent searchParams={searchParams} />
+        </Suspense>
     );
 }

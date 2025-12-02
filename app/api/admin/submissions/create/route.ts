@@ -1,15 +1,19 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse, connection } from "next/server";
+import { headers } from "next/headers";
 import { db } from "@/drizzle/db";
 import { formSubmission } from "@/drizzle/schema";
 import { formSubmissionSchema } from "@/lib/validations/form-validation";
 import { auth } from "@/lib/auth";
 import { nanoid } from "nanoid";
 
-export async function POST(req: NextRequest) {
+export async function POST(req: Request) {
+    // Opt into dynamic rendering
+    await connection();
+
     try {
         // Get current admin session
         const session = await auth.api.getSession({
-            headers: req.headers,
+            headers: await headers(),
         });
 
         // Verify admin access

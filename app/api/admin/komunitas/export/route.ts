@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest, NextResponse, connection } from "next/server";
 import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
 import { db } from "@/drizzle/db";
@@ -9,6 +9,9 @@ import { jsPDF } from "jspdf";
 import autoTable from "jspdf-autotable";
 
 export async function GET(request: NextRequest) {
+    // Opt into dynamic rendering
+    await connection();
+
     try {
         // Check authentication and admin role
         const session = await auth.api.getSession({

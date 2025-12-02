@@ -263,14 +263,36 @@ async function PostsTable({ searchParams }: { searchParams: SearchParams }) {
     );
 }
 
+function PageSkeleton() {
+    return (
+        <div className="space-y-6">
+            <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                <div className="space-y-2">
+                    <Skeleton className="h-9 w-48" />
+                    <Skeleton className="h-4 w-72" />
+                </div>
+                <Skeleton className="h-10 w-40" />
+            </div>
+            <Skeleton className="h-10 w-full max-w-md" />
+            <TableLoading />
+        </div>
+    );
+}
+
 /**
- * Halaman Admin untuk manajemen kegiatan/posts
- * Hanya dapat diakses oleh admin
+ * Server component untuk authenticated admin kegiatan content
+ * Wrapped in Suspense karena menggunakan headers()
+ * searchParams diakses di dalam komponen ini agar berada dalam Suspense boundary
  */
-export default async function AdminKegiatanPage({
-    searchParams,
-}: AdminKegiatanPageProps) {
-    // Cek autentikasi dan role
+async function AuthenticatedAdminKegiatanContent({
+    searchParamsPromise,
+}: {
+    searchParamsPromise: Promise<SearchParams>;
+}) {
+    // Await searchParams di dalam Suspense boundary
+    const searchParams = await searchParamsPromise;
+
+    // Cek autentikasi dan role - uses headers() which requires Suspense
     const session = await auth.api.getSession({
         headers: await headers(),
     });
@@ -282,8 +304,6 @@ export default async function AdminKegiatanPage({
     if (session.user.role !== "admin") {
         redirect("/");
     }
-
-    const params = await searchParams;
 
     return (
         <div className="space-y-6">
@@ -312,10 +332,30 @@ export default async function AdminKegiatanPage({
             </div>
 
             {/* Table dengan Suspense */}
-            <Suspense key={JSON.stringify(params)} fallback={<TableLoading />}>
-                <PostsTable searchParams={params} />
+            <Suspense
+                key={JSON.stringify(searchParams)}
+                fallback={<TableLoading />}
+            >
+                <PostsTable searchParams={searchParams} />
             </Suspense>
         </div>
+    );
+}
+
+/**
+ * Halaman Admin untuk manajemen kegiatan/posts
+ * Menggunakan Suspense boundary untuk dynamic content yang membutuhkan headers()
+ * searchParams diakses di dalam Suspense untuk menghindari blocking route
+ */
+export default function AdminKegiatanPage({
+    searchParams,
+}: AdminKegiatanPageProps) {
+    return (
+        <Suspense fallback={<PageSkeleton />}>
+            <AuthenticatedAdminKegiatanContent
+                searchParamsPromise={searchParams}
+            />
+        </Suspense>
     );
 }
 
