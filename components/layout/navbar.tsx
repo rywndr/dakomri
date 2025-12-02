@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { LogOutIcon, ShieldIcon, FileText, User } from "lucide-react";
 import { authClient } from "@/lib/auth-client";
 import { getInitials, getRoleBadgeColor } from "@/lib/helpers";
@@ -84,6 +84,7 @@ function FormStatusBadge({ status }: { status: FormStatus }) {
  */
 function UserMenu({ user }: { user: UserSession }) {
     const router = useRouter();
+    const queryClient = useQueryClient();
 
     const { data: formStatus, isLoading: isLoadingStatus } = useQuery({
         queryKey: ["form-status"],
@@ -96,7 +97,15 @@ function UserMenu({ user }: { user: UserSession }) {
         try {
             await authClient.signOut({
                 fetchOptions: {
-                    onSuccess: () => {
+                    onSuccess: async () => {
+                        // Invalidate session and form-status queries to update navbar immediately
+                        await queryClient.invalidateQueries({
+                            queryKey: ["session"],
+                        });
+                        await queryClient.invalidateQueries({
+                            queryKey: ["form-status"],
+                        });
+
                         toast.success("Berhasil logout");
                         router.push("/auth");
                         router.refresh();

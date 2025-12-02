@@ -1,11 +1,7 @@
 import { Suspense } from "react";
 import { Navbar } from "@/components/layout/navbar";
-import { Footer } from "@/components/layout/footer";
 import { Skeleton } from "@/components/ui/skeleton";
 
-/**
- * Skeleton for navbar loading state during prerender
- */
 function NavbarSkeleton() {
     return (
         <nav className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60">
@@ -27,7 +23,10 @@ function NavbarSkeleton() {
     );
 }
 
-export default function RootLayout({
+/**
+ * hared across all non-auth routes
+ */
+export default function MainLayout({
     children,
 }: {
     children: React.ReactNode;
@@ -37,8 +36,7 @@ export default function RootLayout({
             <Suspense fallback={<NavbarSkeleton />}>
                 <Navbar />
             </Suspense>
-            <main className="min-h-[calc(100vh-4rem)]">{children}</main>
-            <Footer />
+            {children}
         </>
     );
 }

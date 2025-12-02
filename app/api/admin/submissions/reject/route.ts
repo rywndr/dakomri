@@ -8,6 +8,7 @@ import { eq } from "drizzle-orm";
 import {
     revalidateFormStatus,
     revalidateSubmissions,
+    revalidateSubmissionStats,
     revalidateStatistics,
 } from "@/lib/revalidate";
 
@@ -87,9 +88,11 @@ export async function POST(request: NextRequest) {
         }
         // 2. Revalidate admin submissions cache
         await revalidateSubmissions();
-        // 3. Revalidate statistics karena data berubah
+        // 3. Revalidate submission stats (pending/approved/rejected counts)
+        await revalidateSubmissionStats();
+        // 4. Revalidate statistics karena data berubah
         await revalidateStatistics();
-        // 4. Revalidate the submissions page path
+        // 5. Revalidate the submissions page path
         revalidatePath("/admin/submissions");
 
         return NextResponse.json(

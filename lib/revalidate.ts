@@ -55,8 +55,25 @@ export async function revalidatePost(postId: string) {
 
 /**
  * Revalidate admin submissions cache
- * Digunakan setelah ada perubahan pada submissions
+ * Uses expire: 0 for immediate invalidation since admin expects instant feedback
  */
 export async function revalidateSubmissions() {
-    revalidateTag("admin-submissions", "max");
+    revalidateTag("admin-submissions", { expire: 0 });
+}
+
+/**
+ * Revalidate submission stats cache
+ * Uses expire: 0 for immediate invalidation since admin expects instant feedback
+ */
+export async function revalidateSubmissionStats() {
+    revalidateTag("submission-stats", { expire: 0 });
+}
+
+/**
+ * Revalidate single submission cache
+ * Uses expire: 0 for immediate invalidation since admin expects instant feedback
+ */
+export async function revalidateSubmission(submissionId: string) {
+    revalidateTag(`submission-${submissionId}`, { expire: 0 });
+    revalidateTag("admin-submissions", { expire: 0 });
 }

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useForm } from "@tanstack/react-form";
 import { useRouter } from "next/navigation";
+import { useQueryClient } from "@tanstack/react-query";
 import { authClient } from "@/lib/auth-client";
 import { signInSchema } from "@/lib/auth-schemas";
 import { Button } from "@/components/ui/button";
@@ -18,6 +19,7 @@ import { SocialAuthButtons } from "./social-auth-buttons";
  */
 export function SignInForm() {
     const router = useRouter();
+    const queryClient = useQueryClient();
     const [isLoading, setIsLoading] = useState(false);
 
     const form = useForm({
@@ -43,6 +45,12 @@ export function SignInForm() {
 
                 toast.success("Login berhasil", {
                     description: "Anda akan diarahkan ke home page",
+                });
+
+                // Invalidate session and form-status queries to update navbar immediately
+                await queryClient.invalidateQueries({ queryKey: ["session"] });
+                await queryClient.invalidateQueries({
+                    queryKey: ["form-status"],
                 });
 
                 router.push("/");

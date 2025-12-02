@@ -1,10 +1,12 @@
 import { NextRequest, NextResponse, connection } from "next/server";
 import { headers } from "next/headers";
+import { revalidatePath } from "next/cache";
 import { auth } from "@/lib/auth";
 import { db } from "@/drizzle/db";
 import { formSubmission } from "@/drizzle/schema";
 import { formSubmissionSchema } from "@/lib/validations/form-validation";
 import { eq, and, ne } from "drizzle-orm";
+import { revalidateSubmissions, revalidateSubmission } from "@/lib/revalidate";
 
 export async function PUT(
     request: NextRequest,
@@ -231,6 +233,15 @@ export async function PUT(
             .set(updateData)
             .where(eq(formSubmission.id, id))
             .returning();
+
+        // Revalidate caches after update
+        // 1. Revalidate specific submission cache
+        await revalidateSubmission(id);
+        // 2. Revalidate admin submissions list cache
+        await revalidateSubmissions();
+        // 3. Revalidate the submissions page path
+        revalidatePath("/admin/submissions");
+        revalidatePath(`/admin/submissions/${id}`);
 
         return NextResponse.json(
             {

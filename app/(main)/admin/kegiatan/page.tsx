@@ -2,7 +2,7 @@ import { Suspense } from "react";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
-import { getPosts } from "@/app/(root)/kegiatan/data";
+import { getPosts } from "@/app/(main)/(public)/kegiatan/data";
 import { Button } from "@/components/ui/button";
 import { Plus, Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
