@@ -2,7 +2,6 @@
 
 import { Dispatch, SetStateAction } from "react";
 import Image from "next/image";
-import { useQueryClient } from "@tanstack/react-query";
 import { authClient } from "@/lib/auth-client";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
@@ -21,15 +20,9 @@ export function SocialAuthButtons({
     setIsLoading,
     callbackURL = "/",
 }: SocialAuthButtonsProps) {
-    const queryClient = useQueryClient();
-
     const handleGoogleAuth = async () => {
         setIsLoading(true);
         try {
-            // Invalidate queries before redirect so they refetch on return
-            await queryClient.invalidateQueries({ queryKey: ["session"] });
-            await queryClient.invalidateQueries({ queryKey: ["form-status"] });
-
             await authClient.signIn.social({
                 provider: "google",
                 callbackURL,

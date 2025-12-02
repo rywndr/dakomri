@@ -1,9 +1,9 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { LogOutIcon, ShieldIcon, FileText, User } from "lucide-react";
 import { authClient } from "@/lib/auth-client";
 import { getInitials, getRoleBadgeColor } from "@/lib/helpers";
@@ -36,25 +36,6 @@ interface FormStatus {
 }
 
 /**
- * Fetch user session from API
- */
-async function fetchSession(): Promise<UserSession | null> {
-    const response = await fetch("/api/user/session");
-    if (!response.ok) return null;
-    const data = await response.json();
-    return data.user || null;
-}
-
-/**
- * Fetch form status from API
- */
-async function fetchFormStatus(): Promise<FormStatus> {
-    const response = await fetch("/api/form/status");
-    if (!response.ok) return { hasSubmitted: false, status: null };
-    return response.json();
-}
-
-/**
  * FormStatusBadge - Displays the user's form submission status
  */
 function FormStatusBadge({ status }: { status: FormStatus }) {
@@ -82,30 +63,22 @@ function FormStatusBadge({ status }: { status: FormStatus }) {
 /**
  * UserMenu - Dropdown menu for authenticated users
  */
-function UserMenu({ user }: { user: UserSession }) {
+function UserMenu({
+    user,
+    formStatus,
+    isLoadingStatus,
+}: {
+    user: UserSession;
+    formStatus: FormStatus;
+    isLoadingStatus: boolean;
+}) {
     const router = useRouter();
-    const queryClient = useQueryClient();
-
-    const { data: formStatus, isLoading: isLoadingStatus } = useQuery({
-        queryKey: ["form-status"],
-        queryFn: fetchFormStatus,
-        staleTime: 1000 * 30, // 30 seconds - shorter for more responsive updates
-        refetchOnWindowFocus: true, // Refetch when user focuses window
-    });
 
     const handleLogout = async () => {
         try {
             await authClient.signOut({
                 fetchOptions: {
-                    onSuccess: async () => {
-                        // Invalidate session and form-status queries to update navbar immediately
-                        await queryClient.invalidateQueries({
-                            queryKey: ["session"],
-                        });
-                        await queryClient.invalidateQueries({
-                            queryKey: ["form-status"],
-                        });
-
+                    onSuccess: () => {
                         toast.success("Berhasil logout");
                         router.push("/auth");
                         router.refresh();
@@ -172,14 +145,7 @@ function UserMenu({ user }: { user: UserSession }) {
                     {isLoadingStatus ? (
                         <Skeleton className="h-3 w-16" />
                     ) : (
-                        <FormStatusBadge
-                            status={
-                                formStatus || {
-                                    hasSubmitted: false,
-                                    status: null,
-                                }
-                            }
-                        />
+                        <FormStatusBadge status={formStatus} />
                     )}
                 </DropdownMenuItem>
             </DropdownMenuContent>
@@ -189,16 +155,61 @@ function UserMenu({ user }: { user: UserSession }) {
 
 /**
  * Navbar - Main navigation component
- * Uses TanStack Query for session and form status
+ * Uses useEffect for fetching session and form status
  */
 export function Navbar() {
-    // Use isLoading from query to handle hydration - no need for separate mounted state
-    const { data: session, isLoading } = useQuery({
-        queryKey: ["session"],
-        queryFn: fetchSession,
-        staleTime: 1000 * 60 * 5, // 5 minutes
-        retry: false,
+    const [session, setSession] = useState<UserSession | null>(null);
+    const [formStatus, setFormStatus] = useState<FormStatus>({
+        hasSubmitted: false,
+        status: null,
     });
+    const [isLoading, setIsLoading] = useState(true);
+    const [isLoadingStatus, setIsLoadingStatus] = useState(true);
+
+    // Fetch session on mount
+    useEffect(() => {
+        async function fetchSession() {
+            try {
+                const response = await fetch("/api/user/session");
+                if (response.ok) {
+                    const data = await response.json();
+                    setSession(data.user || null);
+                } else {
+                    setSession(null);
+                }
+            } catch {
+                setSession(null);
+            } finally {
+                setIsLoading(false);
+            }
+        }
+
+        fetchSession();
+    }, []);
+
+    // Fetch form status when session is available
+    useEffect(() => {
+        async function fetchFormStatus() {
+            if (!session) {
+                setIsLoadingStatus(false);
+                return;
+            }
+
+            try {
+                const response = await fetch("/api/form/status");
+                if (response.ok) {
+                    const data = await response.json();
+                    setFormStatus(data);
+                }
+            } catch {
+                // Keep default status on error
+            } finally {
+                setIsLoadingStatus(false);
+            }
+        }
+
+        fetchFormStatus();
+    }, [session]);
 
     const isAdmin = session?.role === "admin";
 
@@ -236,7 +247,11 @@ export function Navbar() {
                     {isLoading ? (
                         <Skeleton className="size-9 rounded-full" />
                     ) : session ? (
-                        <UserMenu user={session} />
+                        <UserMenu
+                            user={session}
+                            formStatus={formStatus}
+                            isLoadingStatus={isLoadingStatus}
+                        />
                     ) : (
                         <Link href="/auth">
                             <button className="py-2 px-4 rounded-md text-sm font-medium bg-primary text-primary-foreground hover:bg-primary/90 transition-colors">
