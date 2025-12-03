@@ -19,15 +19,7 @@ import { format } from "date-fns";
 import { id as localeId } from "date-fns/locale";
 import { Skeleton } from "@/components/ui/skeleton";
 import { PostsSearch } from "@/components/kegiatan/posts-search";
-import {
-    Pagination,
-    PaginationContent,
-    PaginationEllipsis,
-    PaginationItem,
-    PaginationLink,
-    PaginationNext,
-    PaginationPrevious,
-} from "@/components/ui/pagination";
+import { PaginationControls } from "@/components/admin/pagination-controls";
 import { AdminPostActions } from "@/components/kegiatan/admin-post-actions";
 import type { Metadata } from "next";
 
@@ -82,40 +74,6 @@ async function PostsTable({ searchParams }: { searchParams: SearchParams }) {
         } catch {
             return format(new Date(date), "d MMM yyyy");
         }
-    };
-
-    /**
-     * Generate array halaman untuk pagination
-     */
-    const getPageNumbers = () => {
-        const pages: (number | "ellipsis")[] = [];
-        const delta = 2;
-
-        for (let i = 1; i <= totalPages; i++) {
-            if (
-                i === 1 ||
-                i === totalPages ||
-                (i >= currentPage - delta && i <= currentPage + delta)
-            ) {
-                pages.push(i);
-            } else if (pages[pages.length - 1] !== "ellipsis") {
-                pages.push("ellipsis");
-            }
-        }
-
-        return pages;
-    };
-
-    /**
-     * Handler untuk navigasi pagination (client-side)
-     */
-    const getPaginationUrl = (pageNum: number) => {
-        const params = new URLSearchParams();
-        params.set("page", pageNum.toString());
-        if (search) {
-            params.set("search", search);
-        }
-        return `?${params.toString()}`;
     };
 
     return (
@@ -203,62 +161,11 @@ async function PostsTable({ searchParams }: { searchParams: SearchParams }) {
                 </Table>
             </div>
 
-            {/* Pagination */}
-            {totalPages > 1 && (
-                <Pagination>
-                    <PaginationContent>
-                        {/* Previous Button */}
-                        <PaginationItem>
-                            <PaginationPrevious
-                                href={
-                                    currentPage > 1
-                                        ? getPaginationUrl(currentPage - 1)
-                                        : "#"
-                                }
-                                aria-disabled={currentPage === 1}
-                                className={
-                                    currentPage === 1
-                                        ? "pointer-events-none opacity-50"
-                                        : ""
-                                }
-                            />
-                        </PaginationItem>
-
-                        {/* Page Numbers */}
-                        {getPageNumbers().map((pageNum, index) => (
-                            <PaginationItem key={index}>
-                                {pageNum === "ellipsis" ? (
-                                    <PaginationEllipsis />
-                                ) : (
-                                    <PaginationLink
-                                        href={getPaginationUrl(pageNum)}
-                                        isActive={currentPage === pageNum}
-                                    >
-                                        {pageNum}
-                                    </PaginationLink>
-                                )}
-                            </PaginationItem>
-                        ))}
-
-                        {/* Next Button */}
-                        <PaginationItem>
-                            <PaginationNext
-                                href={
-                                    currentPage < totalPages
-                                        ? getPaginationUrl(currentPage + 1)
-                                        : "#"
-                                }
-                                aria-disabled={currentPage === totalPages}
-                                className={
-                                    currentPage === totalPages
-                                        ? "pointer-events-none opacity-50"
-                                        : ""
-                                }
-                            />
-                        </PaginationItem>
-                    </PaginationContent>
-                </Pagination>
-            )}
+            {/* Pagination - uses client component with router.push for smooth navigation */}
+            <PaginationControls
+                currentPage={currentPage}
+                totalPages={totalPages}
+            />
         </div>
     );
 }
