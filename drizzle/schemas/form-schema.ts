@@ -30,7 +30,7 @@ export const formSubmission = pgTable("form_submission", {
 
     // Section 2: Dokumen Kependudukan
     nik: text("nik").notNull().unique(),
-    nomorKK: text("nomor_kk").notNull().unique(),
+    nomorKK: text("nomor_kk").unique(),
     statusKepemilikanEKTP: text("status_kepemilikan_ektp").notNull(), // "Memiliki" | "Tidak Memiliki" | "Dalam Proses"
 
     // Section 3: Alamat

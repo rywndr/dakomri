@@ -36,7 +36,7 @@ export async function GET() {
 
                 // Section 2: Dokumen Kependudukan
                 "NIK*": "1234567890123456",
-                "Nomor KK*": "1234567890123456",
+                "Nomor KK": "1234567890123456",
                 "Status Kepemilikan E-KTP*":
                     "Memiliki / Tidak Memiliki / Dalam Proses",
 
@@ -54,8 +54,8 @@ export async function GET() {
                 "Kontak Telepon*": "08123456789",
 
                 // Section 5: Pekerjaan & Ekonomi
-                "Status Perkawinan": "Belum Kawin / Kawin / Cerai",
-                "Pendidikan Terakhir":
+                "Status Perkawinan*": "Belum Kawin / Kawin / Cerai",
+                "Pendidikan Terakhir*":
                     "SD / SMP / SMA/SMK / Perguruan Tinggi / Tidak Sekolah",
                 "Status Pekerjaan":
                     "Bekerja / Tidak Bekerja / Pelajar Mahasiswa",
@@ -125,7 +125,9 @@ export async function GET() {
                 "5. Untuk field yang dapat diisi banyak nilai, pisahkan dengan koma (,)",
             ],
             ["6. Format tanggal: YYYY-MM-DD (contoh: 1990-01-15)"],
-            ["7. NIK dan Nomor KK harus 16 digit angka"],
+            [
+                "7. NIK harus 16 digit angka, Nomor KK opsional (jika diisi harus 16 digit)",
+            ],
             ["8. Nomor telepon diawali dengan 08 atau +62"],
             [
                 "9. Pendapatan dalam Rupiah tanpa titik atau koma (contoh: 5000000)",

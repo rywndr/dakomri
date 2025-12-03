@@ -21,6 +21,7 @@ import {
 import {
     section3Schema,
     section4Schema,
+    section5Schema,
 } from "@/lib/validations/form-validation";
 
 /**
@@ -364,11 +365,27 @@ export function Section5({ form }: Section5Props) {
                     return (
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             {/* Status Perkawinan */}
-                            <form.Field name="statusPerkawinan">
+                            <form.Field
+                                name="statusPerkawinan"
+                                validators={{
+                                    onChange: ({ value }) => {
+                                        const result =
+                                            section5Schema.shape.statusPerkawinan.safeParse(
+                                                value,
+                                            );
+                                        return result.success
+                                            ? undefined
+                                            : result.error.errors[0]?.message;
+                                    },
+                                }}
+                            >
                                 {(field) => (
                                     <div className="space-y-2">
                                         <Label htmlFor="statusPerkawinan">
-                                            Status Perkawinan
+                                            Status Perkawinan{" "}
+                                            <span className="text-destructive">
+                                                *
+                                            </span>
                                         </Label>
                                         <Select
                                             value={field.state.value || ""}
@@ -378,7 +395,15 @@ export function Section5({ form }: Section5Props) {
                                                 )
                                             }
                                         >
-                                            <SelectTrigger>
+                                            <SelectTrigger
+                                                id="statusPerkawinan"
+                                                className={
+                                                    field.state.meta.errors
+                                                        .length > 0
+                                                        ? "border-destructive"
+                                                        : ""
+                                                }
+                                            >
                                                 <SelectValue placeholder="Pilih status perkawinan" />
                                             </SelectTrigger>
                                             <SelectContent>
@@ -393,16 +418,37 @@ export function Section5({ form }: Section5Props) {
                                                 </SelectItem>
                                             </SelectContent>
                                         </Select>
+                                        {field.state.meta.errors.length > 0 && (
+                                            <p className="text-sm text-destructive">
+                                                {field.state.meta.errors[0]}
+                                            </p>
+                                        )}
                                     </div>
                                 )}
                             </form.Field>
 
                             {/* Pendidikan Terakhir */}
-                            <form.Field name="pendidikanTerakhir">
+                            <form.Field
+                                name="pendidikanTerakhir"
+                                validators={{
+                                    onChange: ({ value }) => {
+                                        const result =
+                                            section5Schema.shape.pendidikanTerakhir.safeParse(
+                                                value,
+                                            );
+                                        return result.success
+                                            ? undefined
+                                            : result.error.errors[0]?.message;
+                                    },
+                                }}
+                            >
                                 {(field) => (
                                     <div className="space-y-2">
                                         <Label htmlFor="pendidikanTerakhir">
-                                            Pendidikan Terakhir
+                                            Pendidikan Terakhir{" "}
+                                            <span className="text-destructive">
+                                                *
+                                            </span>
                                         </Label>
                                         <Select
                                             value={field.state.value || ""}
@@ -412,7 +458,15 @@ export function Section5({ form }: Section5Props) {
                                                 )
                                             }
                                         >
-                                            <SelectTrigger>
+                                            <SelectTrigger
+                                                id="pendidikanTerakhir"
+                                                className={
+                                                    field.state.meta.errors
+                                                        .length > 0
+                                                        ? "border-destructive"
+                                                        : ""
+                                                }
+                                            >
                                                 <SelectValue placeholder="Pilih pendidikan terakhir" />
                                             </SelectTrigger>
                                             <SelectContent>
@@ -433,6 +487,11 @@ export function Section5({ form }: Section5Props) {
                                                 </SelectItem>
                                             </SelectContent>
                                         </Select>
+                                        {field.state.meta.errors.length > 0 && (
+                                            <p className="text-sm text-destructive">
+                                                {field.state.meta.errors[0]}
+                                            </p>
+                                        )}
                                     </div>
                                 )}
                             </form.Field>

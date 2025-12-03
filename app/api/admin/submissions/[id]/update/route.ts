@@ -89,27 +89,29 @@ export async function PUT(
             );
         }
 
-        // Check for duplicate Nomor KK (excluding current submission)
-        const [duplicateKK] = await db
-            .select({ id: formSubmission.id })
-            .from(formSubmission)
-            .where(
-                and(
-                    eq(formSubmission.nomorKK, data.nomorKK),
-                    ne(formSubmission.id, id),
-                ),
-            )
-            .limit(1);
+        // Check for duplicate Nomor KK (excluding current submission, only if provided)
+        if (data.nomorKK) {
+            const [duplicateKK] = await db
+                .select({ id: formSubmission.id })
+                .from(formSubmission)
+                .where(
+                    and(
+                        eq(formSubmission.nomorKK, data.nomorKK),
+                        ne(formSubmission.id, id),
+                    ),
+                )
+                .limit(1);
 
-        if (duplicateKK) {
-            return NextResponse.json(
-                {
-                    error: "Nomor KK sudah terdaftar",
-                    message:
-                        "Nomor KK yang dimasukkan sudah digunakan oleh submission lain.",
-                },
-                { status: 400 },
-            );
+            if (duplicateKK) {
+                return NextResponse.json(
+                    {
+                        error: "Nomor KK sudah terdaftar",
+                        message:
+                            "Nomor KK yang dimasukkan sudah digunakan oleh submission lain.",
+                    },
+                    { status: 400 },
+                );
+            }
         }
 
         // Prepare data for database update
@@ -126,7 +128,7 @@ export async function PUT(
 
             // Section 2: Dokumen Kependudukan
             nik: data.nik,
-            nomorKK: data.nomorKK,
+            nomorKK: data.nomorKK || null, // Optional field
             statusKepemilikanEKTP: data.statusKepemilikanEKTP,
 
             // Section 3: Alamat
@@ -142,8 +144,8 @@ export async function PUT(
             kontakTelp: data.kontakTelp,
 
             // Section 5: Pekerjaan & Ekonomi
-            statusPerkawinan: data.statusPerkawinan || null,
-            pendidikanTerakhir: data.pendidikanTerakhir || null,
+            statusPerkawinan: data.statusPerkawinan, // Mandatory field
+            pendidikanTerakhir: data.pendidikanTerakhir, // Mandatory field
             statusPekerjaan: data.statusPekerjaan || null,
             jenisPekerjaan: data.jenisPekerjaan || null,
             pendapatanBulanan: data.pendapatanBulanan?.toString() || null,

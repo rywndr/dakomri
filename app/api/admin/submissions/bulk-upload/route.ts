@@ -81,11 +81,15 @@ export async function POST(req: NextRequest) {
                 const requiredFields = [
                     { key: "Nama Depan*", name: "Nama Depan" },
                     { key: "NIK*", name: "NIK" },
-                    { key: "Nomor KK*", name: "Nomor KK" },
                     { key: "Status Kepemilikan E-KTP*", name: "Status E-KTP" },
                     { key: "Alamat Lengkap*", name: "Alamat" },
                     { key: "Kota*", name: "Kota" },
                     { key: "Kontak Telepon*", name: "Kontak Telepon" },
+                    { key: "Status Perkawinan*", name: "Status Perkawinan" },
+                    {
+                        key: "Pendidikan Terakhir*",
+                        name: "Pendidikan Terakhir",
+                    },
                 ];
 
                 for (const field of requiredFields) {
@@ -127,7 +131,9 @@ export async function POST(req: NextRequest) {
 
                     // Section 2: Dokumen Kependudukan
                     nik: String(row["NIK*"]).trim(),
-                    nomorKK: String(row["Nomor KK*"]).trim(),
+                    nomorKK: row["Nomor KK"]
+                        ? String(row["Nomor KK"]).trim()
+                        : null,
                     statusKepemilikanEKTP: String(
                         row["Status Kepemilikan E-KTP*"],
                     ).trim(),
@@ -155,12 +161,10 @@ export async function POST(req: NextRequest) {
                     kontakTelp: String(row["Kontak Telepon*"]).trim(),
 
                     // Section 5: Pekerjaan & Ekonomi
-                    statusPerkawinan: row["Status Perkawinan"]
-                        ? String(row["Status Perkawinan"]).trim()
-                        : null,
-                    pendidikanTerakhir: row["Pendidikan Terakhir"]
-                        ? String(row["Pendidikan Terakhir"]).trim()
-                        : null,
+                    statusPerkawinan: String(row["Status Perkawinan*"]).trim(),
+                    pendidikanTerakhir: String(
+                        row["Pendidikan Terakhir*"],
+                    ).trim(),
                     statusPekerjaan: row["Status Pekerjaan"]
                         ? String(row["Status Pekerjaan"]).trim()
                         : null,

@@ -95,8 +95,7 @@ export function Section2({ form }: Section2Props) {
                     {(field) => (
                         <div className="space-y-2">
                             <Label htmlFor="nomorKK">
-                                Nomor Kartu Keluarga{" "}
-                                <span className="text-destructive">*</span>
+                                Nomor Kartu Keluarga
                             </Label>
                             <Input
                                 id="nomorKK"
@@ -119,7 +118,7 @@ export function Section2({ form }: Section2Props) {
                                 </p>
                             )}
                             <p className="text-xs text-muted-foreground">
-                                Harus 16 digit angka
+                                Opsional - Jika diisi harus 16 digit angka
                             </p>
                         </div>
                     )}
@@ -155,6 +154,7 @@ export function Section2({ form }: Section2Props) {
                                 }
                             >
                                 <SelectTrigger
+                                    id="statusKepemilikanEKTP"
                                     className={
                                         field.state.meta.errors.length > 0
                                             ? "border-destructive"

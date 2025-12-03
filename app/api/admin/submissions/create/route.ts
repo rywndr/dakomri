@@ -68,7 +68,7 @@ export async function POST(req: Request) {
 
             // Section 2: Dokumen Kependudukan
             nik: data.nik,
-            nomorKK: data.nomorKK,
+            nomorKK: data.nomorKK || null, // Optional field
             statusKepemilikanEKTP: data.statusKepemilikanEKTP,
 
             // Section 3: Alamat
@@ -84,8 +84,8 @@ export async function POST(req: Request) {
             kontakTelp: data.kontakTelp,
 
             // Section 5: Pekerjaan & Ekonomi
-            statusPerkawinan: data.statusPerkawinan || null,
-            pendidikanTerakhir: data.pendidikanTerakhir || null,
+            statusPerkawinan: data.statusPerkawinan, // Mandatory field
+            pendidikanTerakhir: data.pendidikanTerakhir, // Mandatory field
             statusPekerjaan: data.statusPekerjaan || null,
             jenisPekerjaan: data.jenisPekerjaan || null,
             pendapatanBulanan: data.pendapatanBulanan?.toString() || null,

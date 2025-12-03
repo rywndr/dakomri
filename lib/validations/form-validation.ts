@@ -10,13 +10,15 @@ const nikSchema = z
     .regex(/^\d{16}$/, "NIK harus berisi angka");
 
 /**
- * Validasi Nomor KK Indonesia (16 digit)
+ * Validasi Nomor KK Indonesia (16 digit) - Optional
  */
 const nomorKKSchema = z
     .string()
-    .min(1, "Nomor KK wajib diisi")
-    .length(16, "Nomor KK harus 16 digit")
-    .regex(/^\d{16}$/, "Nomor KK harus berisi angka");
+    .optional()
+    .refine(
+        (val) => !val || /^\d{16}$/.test(val),
+        "Nomor KK harus 16 digit angka",
+    );
 
 /**
  * Validasi nomor telepon Indonesia (+62)
@@ -31,6 +33,7 @@ const phoneSchema = z
 
 /**
  * Schema untuk Section 1: Data Pribadi
+ * Mandatory: namaDepan
  */
 export const section1Schema = z.object({
     namaDepan: z.string().min(1, "Nama depan wajib diisi"),
@@ -45,19 +48,21 @@ export const section1Schema = z.object({
 
 /**
  * Schema untuk Section 2: Dokumen Kependudukan
+ * Mandatory: nik, statusKepemilikanEKTP
+ * Optional: nomorKK
  */
 export const section2Schema = z.object({
     nik: nikSchema,
     nomorKK: nomorKKSchema,
-    statusKepemilikanEKTP: z.enum([
-        "Memiliki",
-        "Tidak Memiliki",
-        "Dalam Proses",
-    ]),
+    statusKepemilikanEKTP: z.enum(
+        ["Memiliki", "Tidak Memiliki", "Dalam Proses"],
+        { required_error: "Status kepemilikan E-KTP wajib diisi" },
+    ),
 });
 
 /**
  * Schema untuk Section 3: Alamat
+ * Mandatory: alamatLengkap, kota
  */
 export const section3Schema = z.object({
     alamatLengkap: z.string().min(1, "Alamat lengkap wajib diisi"),
@@ -73,6 +78,7 @@ export const section3Schema = z.object({
 
 /**
  * Schema untuk Section 4: Kontak
+ * Mandatory: kontakTelp
  */
 export const section4Schema = z.object({
     kontakTelp: phoneSchema,
@@ -80,12 +86,16 @@ export const section4Schema = z.object({
 
 /**
  * Schema untuk Section 5: Pekerjaan & Ekonomi
+ * Mandatory: statusPerkawinan, pendidikanTerakhir
  */
 export const section5Schema = z.object({
-    statusPerkawinan: z.enum(["Belum Kawin", "Kawin", "Cerai"]).optional(),
-    pendidikanTerakhir: z
-        .enum(["SD", "SMP", "SMA/SMK", "Perguruan Tinggi", "Tidak Sekolah"])
-        .optional(),
+    statusPerkawinan: z.enum(["Belum Kawin", "Kawin", "Cerai"], {
+        required_error: "Status perkawinan wajib diisi",
+    }),
+    pendidikanTerakhir: z.enum(
+        ["SD", "SMP", "SMA/SMK", "Perguruan Tinggi", "Tidak Sekolah"],
+        { required_error: "Pendidikan terakhir wajib diisi" },
+    ),
     statusPekerjaan: z
         .enum(["Bekerja", "Tidak Bekerja", "Pelajar Mahasiswa"])
         .optional(),
@@ -166,6 +176,16 @@ export const section11Schema = z.object({
 
 /**
  * Schema lengkap untuk form submission
+ *
+ * Mandatory fields (marked with * in UI):
+ * 1. namaDepan - Nama Depan
+ * 2. nik - NIK
+ * 3. statusKepemilikanEKTP - Status Kepemilikan E-KTP
+ * 4. alamatLengkap - Alamat Lengkap
+ * 5. kota - Kota
+ * 6. kontakTelp - Kontak yang bisa dihubungi
+ * 7. statusPerkawinan - Status Perkawinan
+ * 8. pendidikanTerakhir - Pendidikan Terakhir
  */
 export const formSubmissionSchema = z.object({
     // Section 1
@@ -193,3 +213,26 @@ export const formSubmissionSchema = z.object({
 });
 
 export type FormSubmissionInput = z.infer<typeof formSubmissionSchema>;
+
+/**
+ * List of mandatory field names for reference in UI and validation
+ */
+export const MANDATORY_FIELDS = [
+    "namaDepan",
+    "nik",
+    "statusKepemilikanEKTP",
+    "alamatLengkap",
+    "kota",
+    "kontakTelp",
+    "statusPerkawinan",
+    "pendidikanTerakhir",
+] as const;
+
+export type MandatoryField = (typeof MANDATORY_FIELDS)[number];
+
+/**
+ * Helper function to check if a field is mandatory
+ */
+export function isMandatoryField(fieldName: string): boolean {
+    return MANDATORY_FIELDS.includes(fieldName as MandatoryField);
+}

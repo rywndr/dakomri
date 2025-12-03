@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "@tanstack/react-form";
 import { formSubmissionSchema } from "@/lib/validations/form-validation";
+import { validateAndScroll } from "@/lib/form/validation-utils";
 import { Button } from "@/components/ui/button";
 import {
     Card,
@@ -63,6 +64,7 @@ export function SubmissionEditClient({
 }: SubmissionEditClientProps) {
     const router = useRouter();
     const [isLoading, setIsLoading] = useState(false);
+    const formRef = useRef<HTMLFormElement>(null);
 
     const fullName = [initialData.namaDepan, initialData.namaBelakang]
         .filter(Boolean)
@@ -185,27 +187,8 @@ export function SubmissionEditClient({
                 const result = formSubmissionSchema.safeParse(value);
 
                 if (!result.success) {
-                    const errors = result.error.errors;
-                    console.error("=== VALIDATION ERRORS ===");
-                    errors.forEach((err, idx) => {
-                        console.error(`Error ${idx + 1}:`, {
-                            path: err.path.join("."),
-                            message: err.message,
-                            code: err.code,
-                            received:
-                                "received" in err ? err.received : undefined,
-                        });
-                    });
-                    console.error("Form value being validated:", value);
-                    console.error("=========================");
-
-                    // Show user-friendly toast with field names
-                    const errorFields = errors
-                        .map((e) => e.path.join("."))
-                        .join(", ");
-                    toast.error("Validasi gagal", {
-                        description: `Kesalahan pada field: ${errorFields}`,
-                    });
+                    console.error("Validation errors:", result.error.errors);
+                    setIsLoading(false);
                     return;
                 }
 
@@ -280,7 +263,18 @@ export function SubmissionEditClient({
                     </div>
                 </div>
                 <Button
-                    onClick={() => form.handleSubmit()}
+                    onClick={() => {
+                        // Validasi dengan Zod sebelum submit
+                        const currentValues = form.state.values;
+                        const isValid = validateAndScroll(
+                            currentValues,
+                            formSubmissionSchema,
+                        );
+
+                        if (!isValid) return;
+
+                        form.handleSubmit();
+                    }}
                     disabled={isLoading}
                     className="gap-2"
                 >
@@ -291,9 +285,20 @@ export function SubmissionEditClient({
 
             {/* Form */}
             <form
+                ref={formRef}
                 onSubmit={(e) => {
                     e.preventDefault();
                     e.stopPropagation();
+
+                    // Validasi dengan Zod sebelum submit
+                    const currentValues = form.state.values;
+                    const isValid = validateAndScroll(
+                        currentValues,
+                        formSubmissionSchema,
+                    );
+
+                    if (!isValid) return;
+
                     form.handleSubmit();
                 }}
                 className="space-y-6"
