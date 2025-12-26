@@ -1,24 +1,19 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { useForm } from "@tanstack/react-form";
-import { authClient } from "@/lib/auth-client";
 import { signUpSchema, signUpBaseSchema } from "@/lib/auth-schemas";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Spinner } from "@/components/ui/spinner";
-import { PasswordInput } from "@/components/ui/password";
 import { toast } from "sonner";
 import { SocialAuthButtons } from "./social-auth-buttons";
+import { FormField } from "./form-field";
+import { useAuth } from "@/hooks/use-auth";
 
 /**
  * Form untuk sign up / registrasi user baru
  */
 export function SignUpForm() {
-    const router = useRouter();
-    const [isLoading, setIsLoading] = useState(false);
+    const { isLoading, isSubmitting, setLoading, handleSignUp } = useAuth();
 
     const form = useForm({
         defaultValues: {
@@ -39,36 +34,7 @@ export function SignUpForm() {
                 return;
             }
 
-            setIsLoading(true);
-            try {
-                const authResult = await authClient.signUp.email({
-                    email: value.email,
-                    password: value.password,
-                    name: value.name,
-                });
-
-                if (authResult.error) {
-                    toast.error("Registrasi gagal", {
-                        description:
-                            authResult.error.message ||
-                            "Silakan periksa kembali data Anda",
-                    });
-                    return;
-                }
-
-                toast.success("Registrasi berhasil", {
-                    description: "Anda akan diarahkan ke home page",
-                });
-
-                router.push("/");
-                router.refresh();
-            } catch {
-                toast.error("Terjadi kesalahan", {
-                    description: "Silakan coba lagi nanti",
-                });
-            } finally {
-                setIsLoading(false);
-            }
+            await handleSignUp(value);
         },
     });
 
@@ -95,25 +61,17 @@ export function SignUpForm() {
                 }}
             >
                 {(field) => (
-                    <div className="flex flex-col gap-2">
-                        <Label htmlFor={field.name}>Nama</Label>
-                        <Input
-                            id={field.name}
-                            name={field.name}
-                            type="text"
-                            placeholder="Nama lengkap"
-                            value={field.state.value}
-                            onChange={(e) => field.handleChange(e.target.value)}
-                            onBlur={field.handleBlur}
-                            disabled={isLoading}
-                            aria-invalid={field.state.meta.errors.length > 0}
-                        />
-                        {field.state.meta.errors.length > 0 && (
-                            <span className="text-sm text-destructive">
-                                {field.state.meta.errors[0]}
-                            </span>
-                        )}
-                    </div>
+                    <FormField
+                        id={field.name}
+                        name={field.name}
+                        label="Nama"
+                        placeholder="Nama lengkap"
+                        value={field.state.value}
+                        onChange={field.handleChange}
+                        onBlur={field.handleBlur}
+                        disabled={isLoading}
+                        error={field.state.meta.errors[0]}
+                    />
                 )}
             </form.Field>
 
@@ -131,25 +89,18 @@ export function SignUpForm() {
                 }}
             >
                 {(field) => (
-                    <div className="flex flex-col gap-2">
-                        <Label htmlFor={field.name}>Email</Label>
-                        <Input
-                            id={field.name}
-                            name={field.name}
-                            type="email"
-                            placeholder="nama@email.com"
-                            value={field.state.value}
-                            onChange={(e) => field.handleChange(e.target.value)}
-                            onBlur={field.handleBlur}
-                            disabled={isLoading}
-                            aria-invalid={field.state.meta.errors.length > 0}
-                        />
-                        {field.state.meta.errors.length > 0 && (
-                            <span className="text-sm text-destructive">
-                                {field.state.meta.errors[0]}
-                            </span>
-                        )}
-                    </div>
+                    <FormField
+                        id={field.name}
+                        name={field.name}
+                        label="Email"
+                        type="email"
+                        placeholder="nama@email.com"
+                        value={field.state.value}
+                        onChange={field.handleChange}
+                        onBlur={field.handleBlur}
+                        disabled={isLoading}
+                        error={field.state.meta.errors[0]}
+                    />
                 )}
             </form.Field>
 
@@ -167,24 +118,18 @@ export function SignUpForm() {
                 }}
             >
                 {(field) => (
-                    <div className="flex flex-col gap-2">
-                        <Label htmlFor={field.name}>Password</Label>
-                        <PasswordInput
-                            id={field.name}
-                            name={field.name}
-                            placeholder="••••••••"
-                            value={field.state.value}
-                            onChange={(e) => field.handleChange(e.target.value)}
-                            onBlur={field.handleBlur}
-                            disabled={isLoading}
-                            aria-invalid={field.state.meta.errors.length > 0}
-                        />
-                        {field.state.meta.errors.length > 0 && (
-                            <span className="text-sm text-destructive">
-                                {field.state.meta.errors[0]}
-                            </span>
-                        )}
-                    </div>
+                    <FormField
+                        id={field.name}
+                        name={field.name}
+                        label="Password"
+                        type="password"
+                        placeholder="••••••••"
+                        value={field.state.value}
+                        onChange={field.handleChange}
+                        onBlur={field.handleBlur}
+                        disabled={isLoading}
+                        error={field.state.meta.errors[0]}
+                    />
                 )}
             </form.Field>
 
@@ -207,36 +152,30 @@ export function SignUpForm() {
                 }}
             >
                 {(field) => (
-                    <div className="flex flex-col gap-2">
-                        <Label htmlFor={field.name}>Konfirmasi Password</Label>
-                        <PasswordInput
-                            id={field.name}
-                            name={field.name}
-                            placeholder="••••••••"
-                            value={field.state.value}
-                            onChange={(e) => field.handleChange(e.target.value)}
-                            onBlur={field.handleBlur}
-                            disabled={isLoading}
-                            aria-invalid={field.state.meta.errors.length > 0}
-                        />
-                        {field.state.meta.errors.length > 0 && (
-                            <span className="text-sm text-destructive">
-                                {field.state.meta.errors[0]}
-                            </span>
-                        )}
-                    </div>
+                    <FormField
+                        id={field.name}
+                        name={field.name}
+                        label="Konfirmasi Password"
+                        type="password"
+                        placeholder="••••••••"
+                        value={field.state.value}
+                        onChange={field.handleChange}
+                        onBlur={field.handleBlur}
+                        disabled={isLoading}
+                        error={field.state.meta.errors[0]}
+                    />
                 )}
             </form.Field>
 
             {/* Submit Button */}
             <Button type="submit" disabled={isLoading} className="w-full">
-                {isLoading ? <Spinner /> : "Daftar"}
+                {isSubmitting ? <Spinner /> : "Daftar"}
             </Button>
 
             {/* Social Auth */}
             <SocialAuthButtons
                 isLoading={isLoading}
-                setIsLoading={setIsLoading}
+                setIsLoading={setLoading}
             />
         </form>
     );

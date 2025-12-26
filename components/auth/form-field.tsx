@@ -1,8 +1,9 @@
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password";
 
 /**
- * Props untuk FormField component
+ * Props untuk FormField
  */
 interface FormFieldProps {
     id: string;
@@ -18,7 +19,7 @@ interface FormFieldProps {
 }
 
 /**
- * Reusable form field component label, input, dan error msg
+ * Reusable form field component label, input (text/password), error msg
  */
 export function FormField({
     id,
@@ -35,17 +36,30 @@ export function FormField({
     return (
         <div className="flex flex-col gap-2">
             <Label htmlFor={id}>{label}</Label>
-            <Input
-                id={id}
-                name={name}
-                type={type}
-                placeholder={placeholder}
-                value={value}
-                onChange={(e) => onChange(e.target.value)}
-                onBlur={onBlur}
-                disabled={disabled}
-                aria-invalid={!!error}
-            />
+            {type === "password" ? (
+                <PasswordInput
+                    id={id}
+                    name={name}
+                    placeholder={placeholder}
+                    value={value}
+                    onChange={(e) => onChange(e.target.value)}
+                    onBlur={onBlur}
+                    disabled={disabled}
+                    aria-invalid={!!error}
+                />
+            ) : (
+                <Input
+                    id={id}
+                    name={name}
+                    type={type}
+                    placeholder={placeholder}
+                    value={value}
+                    onChange={(e) => onChange(e.target.value)}
+                    onBlur={onBlur}
+                    disabled={disabled}
+                    aria-invalid={!!error}
+                />
+            )}
             {error && <span className="text-sm text-destructive">{error}</span>}
         </div>
     );
