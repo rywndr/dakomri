@@ -21,7 +21,7 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { KomunitasActions } from "@/components/admin/komunitas-actions";
 import { KomunitasExportButton } from "@/components/admin/komunitas-export-button";
-import { PaginationControls } from "@/components/admin/pagination-controls";
+import { PaginationControls } from "@/components/ui/pagination";
 import { AdminSearch } from "@/components/admin/admin-search";
 import { KomunitasFilters } from "@/components/admin/komunitas-filters";
 import {

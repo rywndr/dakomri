@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { PaginationControls } from "@/components/admin/pagination-controls";
+import { PaginationControls } from "@/components/ui/pagination";
 import { SubmissionActions } from "@/components/admin/submission-actions";
 import { SubmissionFilters } from "@/components/admin/submission-filters";
 import { AdminSearch } from "@/components/admin/admin-search";

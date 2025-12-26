@@ -19,7 +19,7 @@ import { format } from "date-fns";
 import { id as localeId } from "date-fns/locale";
 import { Skeleton } from "@/components/ui/skeleton";
 import { PostsSearch } from "@/components/kegiatan/posts-search";
-import { PaginationControls } from "@/components/admin/pagination-controls";
+import { PaginationControls } from "@/components/ui/pagination";
 import { AdminPostActions } from "@/components/kegiatan/admin-post-actions";
 import type { Metadata } from "next";
 

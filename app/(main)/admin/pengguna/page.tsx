@@ -22,7 +22,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { UserActions } from "@/components/admin/user-actions";
-import { PaginationControls } from "@/components/admin/pagination-controls";
+import { PaginationControls } from "@/components/ui/pagination";
 import { AdminSearch } from "@/components/admin/admin-search";
 import { UserFilters } from "@/components/admin/user-filters";
 import { Users, Shield, UserCheck, Link2, Unlink } from "lucide-react";
