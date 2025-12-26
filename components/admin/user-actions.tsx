@@ -1,7 +1,12 @@
 "use client";
 
+// hmmphh tau kok ini bloat bangett tpi yodah la T_T, satu file
+// untuk semua user action, if someone want's to tidy this up
+// please... be my guest :>
+
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { cn } from "@/lib/utils";
 import {
     MoreHorizontal,
     Shield,
@@ -12,6 +17,9 @@ import {
     Key,
     Link2,
     Unlink,
+    Check,
+    ChevronsUpDown,
+    Search,
 } from "lucide-react";
 import { authClient } from "@/lib/auth-client";
 import { Button } from "@/components/ui/button";
@@ -31,6 +39,11 @@ import {
     DialogHeader,
     DialogTitle,
 } from "@/components/ui/dialog";
+import {
+    Popover,
+    PopoverContent,
+    PopoverTrigger,
+} from "@/components/ui/popover";
 import {
     Select,
     SelectContent,
@@ -73,6 +86,8 @@ export function UserActions({
     const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
     const [isLinkDialogOpen, setIsLinkDialogOpen] = useState(false);
     const [isUnlinkDialogOpen, setIsUnlinkDialogOpen] = useState(false);
+    const [isComboboxOpen, setIsComboboxOpen] = useState(false);
+    const [searchQuery, setSearchQuery] = useState("");
     const [selectedRole, setSelectedRole] = useState(currentRole || "user");
     const [updateName, setUpdateName] = useState(userName);
     const [updateEmail, setUpdateEmail] = useState(userEmail);
@@ -656,28 +671,140 @@ export function UserActions({
                                 Tidak ada pengajuan yang tersedia untuk di-link
                             </div>
                         ) : (
-                            <Select
-                                value={selectedSubmissionId}
-                                onValueChange={setSelectedSubmissionId}
+                            <Popover
+                                open={isComboboxOpen}
+                                onOpenChange={setIsComboboxOpen}
                             >
-                                <SelectTrigger>
-                                    <SelectValue placeholder="Pilih pengajuan" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {unlinkedSubmissions.map((submission) => (
-                                        <SelectItem
-                                            key={submission.id}
-                                            value={submission.id}
-                                        >
-                                            {submission.namaDepan}{" "}
-                                            {submission.namaBelakang || ""} (
-                                            {submission.namaAlias || "No alias"}
-                                            ) - NIK: {submission.nik} -{" "}
-                                            {submission.kota}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
+                                <PopoverTrigger asChild>
+                                    <Button
+                                        variant="outline"
+                                        role="combobox"
+                                        aria-expanded={isComboboxOpen}
+                                        className="w-full justify-between"
+                                    >
+                                        {selectedSubmissionId
+                                            ? (() => {
+                                                  const sub =
+                                                      unlinkedSubmissions.find(
+                                                          (s) =>
+                                                              s.id ===
+                                                              selectedSubmissionId,
+                                                      );
+                                                  return sub
+                                                      ? `${sub.namaDepan} ${sub.namaBelakang || ""} (${sub.namaAlias || "No alias"}) - NIK: ${sub.nik}`
+                                                      : "Pilih pengajuan";
+                                              })()
+                                            : "Pilih pengajuan"}
+                                        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                    </Button>
+                                </PopoverTrigger>
+                                <PopoverContent className="w-[460px] p-0">
+                                    <div className="flex items-center border-b px-3">
+                                        <Search className="mr-2 h-4 w-4 shrink-0 opacity-50" />
+                                        <Input
+                                            placeholder="Cari pengajuan..."
+                                            value={searchQuery}
+                                            onChange={(e) =>
+                                                setSearchQuery(e.target.value)
+                                            }
+                                            className="flex h-11 w-full rounded-md bg-transparent py-3 text-sm outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50 border-none focus-visible:ring-0"
+                                        />
+                                    </div>
+                                    <div className="max-h-[300px] overflow-y-auto p-1">
+                                        {unlinkedSubmissions.filter(
+                                            (sub) =>
+                                                sub.namaDepan
+                                                    .toLowerCase()
+                                                    .includes(
+                                                        searchQuery.toLowerCase(),
+                                                    ) ||
+                                                (sub.namaBelakang &&
+                                                    sub.namaBelakang
+                                                        .toLowerCase()
+                                                        .includes(
+                                                            searchQuery.toLowerCase(),
+                                                        )) ||
+                                                (sub.namaAlias &&
+                                                    sub.namaAlias
+                                                        .toLowerCase()
+                                                        .includes(
+                                                            searchQuery.toLowerCase(),
+                                                        )) ||
+                                                sub.nik.includes(searchQuery),
+                                        ).length === 0 ? (
+                                            <div className="py-6 text-center text-sm text-muted-foreground">
+                                                Tidak ada pengajuan ditemukan.
+                                            </div>
+                                        ) : (
+                                            unlinkedSubmissions
+                                                .filter(
+                                                    (sub) =>
+                                                        sub.namaDepan
+                                                            .toLowerCase()
+                                                            .includes(
+                                                                searchQuery.toLowerCase(),
+                                                            ) ||
+                                                        (sub.namaBelakang &&
+                                                            sub.namaBelakang
+                                                                .toLowerCase()
+                                                                .includes(
+                                                                    searchQuery.toLowerCase(),
+                                                                )) ||
+                                                        (sub.namaAlias &&
+                                                            sub.namaAlias
+                                                                .toLowerCase()
+                                                                .includes(
+                                                                    searchQuery.toLowerCase(),
+                                                                )) ||
+                                                        sub.nik.includes(
+                                                            searchQuery,
+                                                        ),
+                                                )
+                                                .map((submission) => (
+                                                    <div
+                                                        key={submission.id}
+                                                        className={cn(
+                                                            "relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none hover:bg-accent hover:text-accent-foreground",
+                                                            selectedSubmissionId ===
+                                                                submission.id &&
+                                                                "bg-accent text-accent-foreground",
+                                                        )}
+                                                        onClick={() => {
+                                                            setSelectedSubmissionId(
+                                                                submission.id ===
+                                                                    selectedSubmissionId
+                                                                    ? ""
+                                                                    : submission.id,
+                                                            );
+                                                            setIsComboboxOpen(
+                                                                false,
+                                                            );
+                                                        }}
+                                                    >
+                                                        <Check
+                                                            className={cn(
+                                                                "mr-2 h-4 w-4",
+                                                                selectedSubmissionId ===
+                                                                    submission.id
+                                                                    ? "opacity-100"
+                                                                    : "opacity-0",
+                                                            )}
+                                                        />
+                                                        {submission.namaDepan}{" "}
+                                                        {submission.namaBelakang ||
+                                                            ""}{" "}
+                                                        (
+                                                        {submission.namaAlias ||
+                                                            "No alias"}
+                                                        ) - NIK:{" "}
+                                                        {submission.nik} -{" "}
+                                                        {submission.kota}
+                                                    </div>
+                                                ))
+                                        )}
+                                    </div>
+                                </PopoverContent>
+                            </Popover>
                         )}
                     </div>
                     <DialogFooter>
