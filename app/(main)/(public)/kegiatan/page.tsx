@@ -129,7 +129,7 @@ export default function KegiatanPage({ searchParams }: KegiatanPageProps) {
  * Metadata untuk halaman
  */
 export const metadata: Metadata = {
-    title: "Kegiatan | DAKOMRI Tanjungpinang",
+    title: "Kegiatan | DAKOMRI",
     description:
-        "Informasi kegiatan dan program untuk komunitas waria di Tanjungpinang",
+        "Informasi kegiatan dan program untuk komunitas waria di wilayah Bintan Raya",
 };

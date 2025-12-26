@@ -1,3 +1,4 @@
+import { Metadata } from "next";
 import { Suspense } from "react";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -232,11 +233,11 @@ export default async function StatsPage() {
             {/* Header - static content */}
             <div className="space-y-2">
                 <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">
-                    Statistik Data Waria Tanjungpinang
+                    Statistik Data Waria Wilayah Bintan Raya
                 </h1>
                 <p className="text-sm text-muted-foreground sm:text-base">
-                    Visualisasi data komprehensif responden waria di Kota
-                    Tanjungpinang
+                    Visualisasi data komprehensif responden waria di wilayah
+                    Bintan Raya
                 </p>
             </div>
 
@@ -311,9 +312,17 @@ export default async function StatsPage() {
             <div className="pt-6 pb-4 text-center text-xs text-muted-foreground sm:text-sm md:pt-8">
                 <p>
                     Data ini dikumpulkan untuk tujuan pendataan dan pemberdayaan
-                    komunitas waria di Tanjungpinang
+                    komunitas waria di wilayah Bintan Raya
                 </p>
             </div>
         </div>
     );
 }
+
+/**
+ * Metadata untuk halaman
+ */
+export const metadata: Metadata = {
+    title: "Statistik | DAKOMRI",
+    description: "Statistik komunitas waria di wilayah Bintan Raya",
+};

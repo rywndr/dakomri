@@ -26,6 +26,7 @@ import { PaginationControls } from "@/components/ui/pagination";
 import { AdminSearch } from "@/components/admin/admin-search";
 import { UserFilters } from "@/components/admin/user-filters";
 import { Users, Shield, UserCheck, Link2, Unlink } from "lucide-react";
+import type { Metadata } from "next";
 
 interface PageProps {
     searchParams: Promise<{
@@ -430,3 +431,11 @@ export default function PenggunaPage({ searchParams }: PageProps) {
         </Suspense>
     );
 }
+
+/**
+ * Metadata untuk halaman
+ */
+export const metadata: Metadata = {
+    title: "Kelola Pengguna | Admin DAKOMRI",
+    description: "Halaman admin untuk mengelola pengguna",
+};

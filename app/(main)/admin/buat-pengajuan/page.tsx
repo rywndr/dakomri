@@ -3,6 +3,7 @@ import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
 import { SubmissionEntryWrapper } from "@/components/admin/submission-entry/submission-entry-wrapper";
 import { Skeleton } from "@/components/ui/skeleton";
+import type { Metadata } from "next";
 
 function BuatPengajuanSkeleton() {
     return (
@@ -51,3 +52,11 @@ export default function BuatPengajuanPage() {
         </Suspense>
     );
 }
+
+/**
+ * Metadata untuk halaman
+ */
+export const metadata: Metadata = {
+    title: "Buat Pengajuan | Admin DAKOMRI",
+    description: "Halaman admin untuk membuat pengajuan",
+};

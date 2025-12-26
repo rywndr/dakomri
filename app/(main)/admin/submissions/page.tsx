@@ -29,6 +29,7 @@ import {
 } from "@/components/ui/empty";
 import { FileText, CheckCircle, XCircle, Clock } from "lucide-react";
 import { getSubmissions, getSubmissionStats } from "./data";
+import type { Metadata } from "next";
 
 interface PageProps {
     searchParams: Promise<{
@@ -485,3 +486,11 @@ export default function SubmissionsPage({ searchParams }: PageProps) {
         </Suspense>
     );
 }
+
+/**
+ * Metadata untuk halaman
+ */
+export const metadata: Metadata = {
+    title: "Kelola Pengajuan | Admin DAKOMRI",
+    description: "Halaman admin untuk mengelola pengajuan pengguna",
+};

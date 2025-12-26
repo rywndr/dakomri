@@ -1,3 +1,4 @@
+import { Metadata } from "next";
 import { Suspense } from "react";
 import { redirect } from "next/navigation";
 import { headers } from "next/headers";
@@ -135,3 +136,11 @@ export default function FormPage() {
         </Suspense>
     );
 }
+
+/**
+ * Metadata untuk halaman
+ */
+export const metadata: Metadata = {
+    title: "Formulir | DAKOMRI",
+    description: "Formulir pengajuan komunitas waria di wilayah Bintan Raya",
+};

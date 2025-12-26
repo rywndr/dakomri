@@ -32,6 +32,7 @@ import {
     EmptyDescription,
 } from "@/components/ui/empty";
 import { Users, Briefcase } from "lucide-react";
+import type { Metadata } from "next";
 
 interface PageProps {
     searchParams: Promise<{
@@ -459,3 +460,11 @@ export default function KomunitasPage({ searchParams }: PageProps) {
         </Suspense>
     );
 }
+
+/**
+ * Metadata untuk halaman
+ */
+export const metadata: Metadata = {
+    title: "Kelola Komunitas | Admin DAKOMRI",
+    description: "Halaman admin untuk mengelola komunitas",
+};

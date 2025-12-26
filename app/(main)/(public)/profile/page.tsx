@@ -5,6 +5,7 @@ import { auth } from "@/lib/auth";
 import { ProfileHeader } from "@/components/profile/profile-header";
 import { ProfileTabs } from "@/components/profile/profile-tabs";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Metadata } from "next";
 
 function ProfileSkeleton() {
     return (
@@ -76,3 +77,11 @@ export default function ProfilePage() {
         </Suspense>
     );
 }
+
+/**
+ * Metadata untuk halaman
+ */
+export const metadata: Metadata = {
+    title: "Profil | DAKOMRI",
+    description: "Profil pengguna",
+};

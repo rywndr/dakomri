@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-    title: "Dakomri",
+    title: "DAKOMRI",
     description: "Website Pendataan Waria Wilayah Bintan Raya",
 };
 
