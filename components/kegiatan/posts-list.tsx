@@ -9,18 +9,9 @@ import {
 } from "@/components/ui/empty";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
-import { useRouter } from "next/navigation";
 import type { Post } from "@/drizzle/schema";
 import Link from "next/link";
-import {
-    Pagination,
-    PaginationContent,
-    PaginationEllipsis,
-    PaginationItem,
-    PaginationLink,
-    PaginationNext,
-    PaginationPrevious,
-} from "@/components/ui/pagination";
+import { PaginationControls } from "@/components/ui/pagination";
 
 interface PostsListProps {
     posts: Post[];
@@ -35,42 +26,6 @@ export function PostsList({
     currentPage,
     isAdmin = false,
 }: PostsListProps) {
-    const router = useRouter();
-
-    /**
-     * Handler untuk navigasi pagination
-     */
-    const handlePageChange = (page: number) => {
-        const params = new URLSearchParams(window.location.search);
-        params.set("page", page.toString());
-        router.push(`?${params.toString()}`, { scroll: false });
-    };
-
-    /**
-     * Generate array halaman untuk pagination
-     * Menampilkan current page, surrounding pages, dan titiek titiek (...)
-     */
-    const getPageNumbers = () => {
-        const pages: (number | "ellipsis")[] = [];
-        const delta = 2; // Jumlah halaman di kiri dan kanan current page
-
-        for (let i = 1; i <= totalPages; i++) {
-            if (
-                i === 1 || // Halaman pertama
-                i === totalPages || // Halaman terakhir
-                (i >= currentPage - delta && i <= currentPage + delta) // Surrounding pages
-            ) {
-                pages.push(i);
-            } else if (
-                pages[pages.length - 1] !== "ellipsis" // Hindari double titik titik
-            ) {
-                pages.push("ellipsis");
-            }
-        }
-
-        return pages;
-    };
-
     return (
         <div className="space-y-8">
             {/* Posts Grid */}
@@ -98,60 +53,10 @@ export function PostsList({
             )}
 
             {/* Pagination */}
-            {totalPages > 1 && (
-                <Pagination>
-                    <PaginationContent>
-                        {/* Previous Button */}
-                        <PaginationItem>
-                            <PaginationPrevious
-                                onClick={() =>
-                                    currentPage > 1 &&
-                                    handlePageChange(currentPage - 1)
-                                }
-                                aria-disabled={currentPage === 1}
-                                className={
-                                    currentPage === 1
-                                        ? "pointer-events-none opacity-50"
-                                        : "cursor-pointer"
-                                }
-                            />
-                        </PaginationItem>
-
-                        {/* Page Numbers */}
-                        {getPageNumbers().map((page, index) => (
-                            <PaginationItem key={index}>
-                                {page === "ellipsis" ? (
-                                    <PaginationEllipsis />
-                                ) : (
-                                    <PaginationLink
-                                        onClick={() => handlePageChange(page)}
-                                        isActive={currentPage === page}
-                                        className="cursor-pointer"
-                                    >
-                                        {page}
-                                    </PaginationLink>
-                                )}
-                            </PaginationItem>
-                        ))}
-
-                        {/* Next Button */}
-                        <PaginationItem>
-                            <PaginationNext
-                                onClick={() =>
-                                    currentPage < totalPages &&
-                                    handlePageChange(currentPage + 1)
-                                }
-                                aria-disabled={currentPage === totalPages}
-                                className={
-                                    currentPage === totalPages
-                                        ? "pointer-events-none opacity-50"
-                                        : "cursor-pointer"
-                                }
-                            />
-                        </PaginationItem>
-                    </PaginationContent>
-                </Pagination>
-            )}
+            <PaginationControls
+                currentPage={currentPage}
+                totalPages={totalPages}
+            />
 
             {/* Floating Action Button - hanya untuk admin */}
             {isAdmin && (
