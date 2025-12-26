@@ -149,7 +149,7 @@ export function Footer() {
                     {/* Dukungan */}
                     <div className="space-y-4">
                         <h4 className="font-semibold">Didukung Oleh</h4>
-                        <div className="flex flex-col gap-4">
+                        <div className="flex gap-4">
                             <div className="relative h-20 w-24 grayscale hover:grayscale-0 transition-all duration-300">
                                 <Image
                                     src={LogoSTTI}
